@@ -1,0 +1,196 @@
+swagger: '2.0'
+info:
+  description: Api and Models
+  version: 1.19.0-rc (787f8c4051c7ac9bfaf2ff9a03df6ffcb85234ff)
+  title: cinema-rest-v1
+host: localhost:8090
+basePath: /
+tags:
+  - name: movies-operations-controller
+    description: Endpoint for cinema operations
+  - name: tickets-operations-controller
+    description: Endpoint for tickets operations
+paths:
+  /api/cinema/operations/movies:
+    get:
+      tags:
+        - movies-operations-controller
+      summary: Retrieve all available movies in a cinema
+      description: Retrieving all movies
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Success
+          schema:
+            type: array
+            items:
+              type: string
+        '400':
+          description: Error during the call
+        '401':
+          description: Unauthorized
+        '404':
+          description: Resource Not found
+        '500':
+          description: Internal Server Error
+  /api/cinema/operations/movies/{movie}:
+    get:
+      tags:
+        - movies-operations-controller
+      summary: Retrieve all seats in a cinema for the required movie 
+      description: Retrieving all seats
+      consumes:
+        - application/json
+      produces:
+        - application/json
+        - application/hal+json
+      parameters:
+        - name: movie
+          in: path
+          description: movie
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Success
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Seat'
+        '400':
+          description: Error during the call
+        '401':
+          description: Unauthorized
+        '404':
+          description: Resource Not found
+        '500':
+          description: Internal Server Error
+  /api/cinema/operations/movies/statistics:
+    get:
+      tags:
+        - movies-operations-controller
+      summary: Retrieve all statistics in a cinema 
+      description: Retrieving all statistics
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Success
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/CinemaStatistics'
+        '400':
+          description: Error during the call
+        '401':
+          description: Unauthorized
+        '404':
+          description: Resource Not found
+        '500':
+          description: Internal Server Error
+  /api/cinema/operations/tickets/ticket:
+    post:
+      tags:
+        - tickets-operations-controller
+      summary: Create a new ticket for the required movie
+      description: Create new ticket
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: info
+          description: client info
+          required: true
+          schema:
+            $ref: '#/definitions/ClientInfo'
+      responses:
+        '201':
+          description: Created
+        '400':
+          description: Error
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal Server Error
+  /api/cinema/operations/tickets/{ticket}:
+    delete:
+      tags:
+        - tickets-operations-controller
+      summary: Delete the ticket
+      description: Delete the ticket
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: ticket
+          in: path
+          description: ticket
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Error
+        '401':
+          description: Unauthorized
+        '404':
+          description: Resource Not found
+        '500':
+          description: Internal Server Error
+
+definitions:
+  ClientInfo:
+    type: object
+    required:
+      - name
+      - surname
+      - age
+      - isStudent
+      - wallet
+      - email
+      - telephone
+    properties:
+      name:
+        type: string
+      surname:
+        type: string
+      age:
+        type: number
+      isStudent:
+        type: boolean
+      wallet:
+        type: number
+        format: float
+      email:
+        type: string
+      telephone:
+        type: string
+  CinemaStatistics:
+    type: object
+    properties:
+      name:
+        type: string
+      seats:
+        type: number
+      ageAverage:
+        type: number
+        format: float
+      accumulatedMoney:
+        type: number
+        format: float
+  Seat:
+    type: object
+    properties:
+      row:
+        type: number
+      column:
+        type: number

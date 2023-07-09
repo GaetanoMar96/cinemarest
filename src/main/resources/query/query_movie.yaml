@@ -1,0 +1,11 @@
+t_cinema_movie:
+  selectAllMovies:
+      "SELECT MOVIE_NAME,
+         DIRECTOR,
+         ACTORS,
+         DURATION,
+         AGING_RATE,
+         SUMMARY
+       FROM cinema.T_CINEMA_MOVIE;"
+  selectMovieInfo:
+    "{t_cinema_movie.selectAllMovies} WHERE MOVIE_NAME = ?;"
