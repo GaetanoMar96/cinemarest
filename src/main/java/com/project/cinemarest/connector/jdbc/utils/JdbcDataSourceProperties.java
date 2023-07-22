@@ -24,5 +24,5 @@ public class JdbcDataSourceProperties {
         this.password = dataSourceProperties.getPassword();
     }
 
-    public JdbcDataSourceProperties() {}
+    private JdbcDataSourceProperties() {}
 }

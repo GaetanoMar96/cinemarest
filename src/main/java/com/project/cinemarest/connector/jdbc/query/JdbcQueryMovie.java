@@ -17,5 +17,24 @@ public class JdbcQueryMovie {
     @Value("${t_cinema_movie.selectMovieInfo}")
     private String selectMovieInfo;
 
+    @Value("${t_cinema_movie.selectAvailableSeatsForMovie}")
+    private String selectAvailableSeatsForMovie;
 
+    @Value("${t_cinema_ticket.insertMovieTicket}")
+    private String insertMovieTicket;
+
+    @Value("${t_cinema_client.insertClientInfo}")
+    private String insertClientInfo;
+
+    @Value("${t_cinema_ticket.deleteMovieTicket}")
+    private String deleteMovieTicket;
+
+    @Value("${t_cinema_hall.updateCinemaHall}")
+    private String updateCinemaHall;
+
+    @Value("${t_cinema_transaction.deleteTransaction}")
+    private String deleteTransaction;
+
+    @Value("${t_cinema_transaction.insertTransaction}")
+    private String insertTransaction;
 }

@@ -7,6 +7,9 @@ import java.util.Iterator;
 import java.util.List;
 
 public class JdbcQuery {
+
+    private static final StringBuilder builder = new StringBuilder();
+
     private String query;
     private List<Object> parameters;
 
@@ -25,7 +28,7 @@ public class JdbcQuery {
 
     public static class JdbcQueryBuilder {
         private StringBuilder queryBuilder;
-        private List<Object> parameters = new ArrayList();
+        private List<Object> parameters = new ArrayList<>();
 
         public static Condition eq(String colName, Object value) {
             return new Condition(colName.concat(" = ?"), Collections.singletonList(value));
@@ -60,10 +63,8 @@ public class JdbcQuery {
         }
 
         private static Condition inNotInHandler(String keyword, String colName, List<Object> values) {
-            StringBuilder builder = new StringBuilder(colName);
-            builder.append(" ");
-            builder.append(keyword);
-            builder.append(" (");
+            //building IN or NOT IN sql operation
+            builder.append(colName).append(" ").append(keyword).append(" (");
 
             for(int i = 0; i < values.size(); ++i) {
                 builder.append("?");
@@ -73,7 +74,9 @@ public class JdbcQuery {
             }
 
             builder.append(")");
-            return new Condition(builder.toString(), values);
+            Condition condition = new Condition(builder.toString(), values);
+            builder.setLength(0);
+            return condition;
         }
 
         public JdbcQuery build() {
@@ -103,10 +106,10 @@ public class JdbcQuery {
         }
 
         private void handleConditions(CriterionEnum criterionEnum, List<Condition> conditions) {
-            Iterator var3 = conditions.iterator();
+            Iterator<Condition> var3 = conditions.iterator();
 
             while(var3.hasNext()) {
-                Condition cond = (Condition)var3.next();
+                Condition cond = var3.next();
                 this.queryBuilder.append(criterionEnum).append(cond.queryPart);
                 this.parameters.addAll(cond.parameters);
             }
@@ -139,7 +142,7 @@ public class JdbcQuery {
 
         public static class Condition {
             private String queryPart;
-            private List<Object> parameters = new ArrayList();
+            private List<Object> parameters;
 
             public String getQueryPart() {
                 return this.queryPart;
@@ -177,6 +180,7 @@ public class JdbcQuery {
 
             private final String value;
 
+            @Override
             public String toString() {
                 return String.valueOf(this.value);
             }

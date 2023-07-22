@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Seat {
 
-    private Integer row;
-    private Integer column;
+    private Double baseCost;
+    private Integer[] availableSeats;
 
 }

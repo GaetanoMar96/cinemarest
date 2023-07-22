@@ -17,9 +17,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.util.Assert;
+
 
 public abstract class JdbcConnector<I, O, D, R> {
 
@@ -38,59 +37,49 @@ public abstract class JdbcConnector<I, O, D, R> {
     @PostConstruct
     private void init() {
         DataSource dataSource = this.jdbcDataSourceProperties.getDataSourceProperties().initializeDataSourceBuilder().build();
-        if (dataSource == null)
+        if (dataSource == null) {
             throw new ExceptionInInitializerError();
+        }
         this.jdbcTemplate = new JdbcTemplate(dataSource);
-        //this.jdbcTemplate.setFetchSize();
     }
 
-    protected JdbcResponse execute(JdbcRequest<D> request) {
+    protected JdbcResponse<R> execute(JdbcRequest<D> request) {
         JdbcResponse<R> response = new JdbcResponse<>();
+        if (request.getType().equals(JdbcQueryType.FIND) && request.getRowMapper() == null) {
+            throw new IllegalStateException("RowMapper must be set");
+        }
+        switchQuery(request, response);
+        return response;
+    }
+
+    private void switchQuery(JdbcRequest<D> request, JdbcResponse<R> response) {
         JdbcQueryType type = request.getType();
         String query = request.getQuery();
         Object[] params = request.getParams();
         RowMapper rowMapper = request.getRowMapper();
-        ResultSetExtractor resultSetExtractor = request.getResultSetExtractor();
-        boolean isRowMapper = false;
-        if (request.getType().equals(JdbcQueryType.FIND)) {
-            if (request.getRowMapper() != null) {
-                isRowMapper = true;
-            } else if (request.getResultSetExtractor() == null) {
-                throw new IllegalStateException("Either RowMapper or ResultSetExtractor must be set");
-            }
-        }
-
         switch (type) {
             case FIND:
-                this.caseQueryTypeFIND(isRowMapper, query, rowMapper, params, response, resultSetExtractor, type);
+                this.caseQueryTypeFIND(query, rowMapper, params, response);
                 break;
             case UPDATE:
-                this.caseQueryTypeUPDATE(type, query, params, response);
-                break;
-            case EXECUTE:
-                this.caseQueryTypeEXECUTE(request, response, type);
+                this.caseQueryTypeUPDATE(query, params, response);
                 break;
             default:
                 logger.error("Invalid JDBC query type not defined.");
         }
-        return response;
     }
 
-    private void caseQueryTypeFIND(boolean isRowMapper, String query, RowMapper rowMapper, Object[] params, JdbcResponse<R> response, ResultSetExtractor resultSetExtractor, JdbcQueryType type) {
+    private void caseQueryTypeFIND(String query, RowMapper rowMapper, Object[] params, JdbcResponse<R> response) {
         try {
-            if (isRowMapper) {
-                List<R> resultList = this.jdbcTemplate.query(query, rowMapper, params);
-                this.resultSize = CollectionUtils.size(resultList);
-                response.setResult(resultList);
-            } else {
-                response.setResultSetExtr(this.jdbcTemplate.query(query, params, resultSetExtractor));
-            }
+            List<R> resultList = this.jdbcTemplate.query(query, rowMapper, params);
+            this.resultSize = CollectionUtils.size(resultList);
+            response.setResult(resultList);
         } catch (DataAccessException exception) {
             throw new SqlConnectionException(exception.getMessage());
         }
     }
 
-    private void caseQueryTypeUPDATE(JdbcQueryType type, String query, Object[] params, JdbcResponse<R> response) {
+    private void caseQueryTypeUPDATE(String query, Object[] params, JdbcResponse<R> response) {
         try {
             this.resultSize = this.jdbcTemplate.update(query, params);
             if (this.resultSize > 0) {
@@ -103,11 +92,33 @@ public abstract class JdbcConnector<I, O, D, R> {
         }
     }
 
-    private void caseQueryTypeEXECUTE(JdbcRequest<D> request, JdbcResponse<R> response, JdbcQueryType type) {
+    protected void caseQueryForObject(String query, RowMapper<R> rowMapper) {
         try {
-            Assert.notNull(request.getCallableStatementCreator(), "CallableStatementCreator must not be null");
-            Assert.notNull(request.getStoredProcedureParameters(), "Callback object must not be null");
-            response.setStoredProcedureResult(this.jdbcTemplate.call(request.getCallableStatementCreator(), request.getStoredProcedureParameters()));
+            this.jdbcTemplate.queryForObject(query, rowMapper);
+        } catch (DataAccessException exception) {
+            throw new SqlConnectionException(exception.getMessage());
+        }
+    }
+
+    protected Long caseQueryTypeSEQUENCE(String query) {
+        try {
+            Long nextVal = this.jdbcTemplate.queryForObject(query, Long.class);
+            if (nextVal == null) {
+                throw new SqlConnectionException("Failed retrieving sequence from JDBC Query.");
+            }
+            return nextVal - 1;
+        } catch (DataAccessException exception) {
+            throw new SqlConnectionException(exception.getMessage());
+        }
+    }
+
+    protected Long caseQueryTypeCOUNT(String query) {
+        try {
+            Long count = this.jdbcTemplate.queryForObject(query, Long.class);
+            if (count == null) {
+                throw new SqlConnectionException("Failed retrieving sequence from JDBC Query.");
+            }
+            return count;
         } catch (DataAccessException exception) {
             throw new SqlConnectionException(exception.getMessage());
         }
@@ -115,7 +126,7 @@ public abstract class JdbcConnector<I, O, D, R> {
 
     public final O call(I input, JdbcRequestTransformer<I, D> requestTransformer, JdbcResponseTransformer<R, O> responseTransformer, Object... args) {
         JdbcRequest<D> jdbcRequest = requestTransformer.transformInput(input, args);
-        JdbcResponse<R> jdbcResponse = (JdbcResponse)this.execute(jdbcRequest);
+        JdbcResponse<R> jdbcResponse = this.execute(jdbcRequest);
         return responseTransformer.transformOutput(jdbcResponse);
     }
 }

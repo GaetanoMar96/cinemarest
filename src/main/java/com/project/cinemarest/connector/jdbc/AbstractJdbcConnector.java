@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.util.StringUtils;
 
 public abstract class AbstractJdbcConnector extends JdbcConnector<String, List<Object>, Void, Object> implements JdbcRequestTransformer<String, Void>, JdbcResponseTransformer<Object, List<Object>> {
 
@@ -24,7 +25,7 @@ public abstract class AbstractJdbcConnector extends JdbcConnector<String, List<O
         jdbcConnectorRequest.setQuery(om);
         jdbcConnectorRequest.setType(queryType);
         if (JdbcQueryType.EXECUTE != queryType) {
-            jdbcConnectorRequest.setRowMapper(new BeanPropertyRowMapper((Class)args[1]));
+            jdbcConnectorRequest.setRowMapper(new BeanPropertyRowMapper<>((Class)args[1]));
             if (args.length > 2) {
                 jdbcConnectorRequest.setParams(Arrays.copyOfRange(args, 2, args.length));
             }
@@ -50,16 +51,13 @@ public abstract class AbstractJdbcConnector extends JdbcConnector<String, List<O
         return this.convertListObjectToGeneric(rowMapper, super.call(jdbcQuery.getQuery(), this, this, this.createArgsArray(JdbcQueryType.FIND, rowMapper, jdbcQuery.getParameters())));
     }
 
-    /*
-    public Long count(JdbcQuery jdbcQuery) {
-        List<Count> results = this.convertListObjectToGeneric(Count.class, (List)super.call(jdbcQuery.getQuery(), this, this, this.createArgsArray(JDBCQueryType.FIND, Count.class, jdbcQuery.getParameters())));
-        return !org.springframework.util.CollectionUtils.isEmpty(results) ? ((Count)results.get(0)).getValore() : 0L;
+    public Long count(String tableName) {
+        return super.caseQueryTypeCOUNT(getCountQuery(tableName));
     }
 
-    public Long count(String qry, Object... args) {
-        List<Count> results = this.convertListObjectToGeneric(Count.class, (List)super.call(qry, this, this, this.createArgsArray(JDBCQueryType.FIND, Count.class, Arrays.asList(args))));
-        return !org.springframework.util.CollectionUtils.isEmpty(results) ? ((Count)results.get(0)).getValore() : 0L;
-    }*/
+    private String getCountQuery(String tableName) {
+        return StringUtils.replace("SELECT COUNT(*) FROM {TABLE_NAME}", "{TABLE_NAME}", tableName);
+    }
 
     public void insert(String qry, Object... args) {
         this.cud(qry, Arrays.asList(args));
@@ -85,23 +83,6 @@ public abstract class AbstractJdbcConnector extends JdbcConnector<String, List<O
         this.cud(jdbcQuery.getQuery(), jdbcQuery.getParameters());
     }
 
-    /*
-    public List<CallableOutputResult> call(CallableQuery callableQuery) {
-        Stream var10000 = ((List)super.call(callableQuery.getQuery(), this, this, new Object[]{JdbcQueryType.EXECUTE, callableQuery.getParameters()})).stream();
-        CallableOutputResult.class.getClass();
-        var10000 = var10000.filter(CallableOutputResult.class::isInstance);
-        CallableOutputResult.class.getClass();
-        return (List)var10000.map(CallableOutputResult.class::cast).collect(Collectors.toList());
-    }
-
-    public List<CallableOutputResult> call(String qry, CallableQuery.CallableParam... params) {
-        Stream var10000 = ((List)super.call(qry, this, this, new Object[]{JDBCQueryType.EXECUTE, Arrays.stream(params).collect(Collectors.toList())})).stream();
-        CallableOutputResult.class.getClass();
-        var10000 = var10000.filter(CallableOutputResult.class::isInstance);
-        CallableOutputResult.class.getClass();
-        return (List)var10000.map(CallableOutputResult.class::cast).collect(Collectors.toList());
-    }*/
-
     private void cud(String qry, List<Object> args) {
         this.call(qry, this, this, this.createArgsArray(JdbcQueryType.UPDATE, Object.class, args));
     }
@@ -120,15 +101,13 @@ public abstract class AbstractJdbcConnector extends JdbcConnector<String, List<O
         return variable.map(returnType::cast).collect(Collectors.toList());
     }
 
-    /*
     public Long nextVal(String sequenceName) {
-        List<Sequence> results = this.convertListObjectToGeneric(Sequence.class, (List)this.call(this.nextValSequenceQuery(sequenceName), this, this, new Object[]{JDBCQueryType.FIND, Sequence.class}));
-        return ((Sequence)results.get(0)).getValore();
+        return super.caseQueryTypeSEQUENCE(nextValSequenceQuery(sequenceName));
     }
 
-    protected String nextValSequenceQuery(String sequenceName) {
-        return StringUtils.replace("SELECT NEXTVAL('{NOME_SEQUENCE}') AS VALORE", "{NOME_SEQUENCE}", StringUtils.trimToEmpty(sequenceName));
-    }*/
+    private String nextValSequenceQuery(String sequenceName) {
+        return StringUtils.replace("SELECT NEXTVAL('{SEQUENCE}') AS VALUE", "{SEQUENCE}", sequenceName);
+    }
 
     @Override
     public List<Object> transformOutput(JdbcResponse<Object> jdbcResponse) {

@@ -8,14 +8,11 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ClientInfo {
-    private UUID userId;
-    private Integer age;
-    private Boolean isStudent;
-    private double wallet;
+public class Transaction {
 
-    //Movie chosen by the customer
+    private Long ticketId;
+
     private Long idMovie;
 
-    private Integer seat;
+    private UUID userId;
 }

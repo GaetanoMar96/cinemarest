@@ -1,22 +1,34 @@
 package com.project.cinemarest.mapper;
 
 
-import com.project.cinemarest.entity.Movie;
-import java.sql.ResultSet;
+import com.project.cinemarest.entity.TCinemaSeat;
+import com.project.cinemarest.model.Seat;
 import java.sql.SQLException;
-import org.springframework.stereotype.Component;
+import java.util.Optional;
+import org.mapstruct.Mapper;
+import org.mapstruct.ReportingPolicy;
+import org.mapstruct.MappingConstants.ComponentModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Component
-public class MovieMapper {
+@Mapper(
+    componentModel = ComponentModel.SPRING,
+    unmappedTargetPolicy = ReportingPolicy.ERROR
+)
+public interface MovieMapper {
 
-    public Movie mapMovie(ResultSet resultSet) throws SQLException {
-        Movie movie = new Movie();
-        movie.setMovieName(resultSet.getString(1));
-        movie.setDirector(resultSet.getString(2));
-        movie.setActors(resultSet.getArray(3));
-        movie.setDuration(resultSet.getLong(4));
-        movie.setAgingRate(resultSet.getInt(5));
-        movie.setSummary(resultSet.getString(6));
-        return movie;
+    Logger logger = LoggerFactory.getLogger(MovieMapper.class);
+
+    default Optional<Seat> mapSeat(TCinemaSeat tCinemaSeat) {
+        try {
+            Integer[] array = (Integer[]) tCinemaSeat.getAvailableSeats().getArray();
+            Seat seat = new Seat();
+            seat.setBaseCost(tCinemaSeat.getBaseCost());
+            seat.setAvailableSeats(array);
+            return Optional.of(seat);
+        } catch (SQLException exception) {
+            logger.debug("Error while mapping model");
+            return Optional.empty();
+        }
     }
 }
