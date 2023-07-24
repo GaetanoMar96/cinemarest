@@ -1,6 +1,6 @@
 package com.project.cinemarest.controller;
 
-import com.project.cinemarest.model.UserInfo;
+import com.project.cinemarest.entity.UserInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
