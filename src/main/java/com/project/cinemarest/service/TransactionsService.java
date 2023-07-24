@@ -23,7 +23,7 @@ public class TransactionsService {
             jdbcConnector.insert(queryBuilder.build());
         } catch (Exception exception) {
             JdbcQueryBuilder queryBuilder = new JdbcQueryBuilder(jdbcQueryMovie.getDeleteMovieTicket());
-            jdbcConnector.update(queryBuilder.build());
+            jdbcConnector.delete(queryBuilder.build());
             throw new SqlConnectionException("Error while inserting transaction");
         }
     }

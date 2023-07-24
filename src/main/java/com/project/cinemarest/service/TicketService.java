@@ -14,6 +14,8 @@ import com.project.cinemarest.model.Transaction;
 import com.project.cinemarest.repository.QueryJdbcConnector;
 import com.project.cinemarest.factory.TicketPriceCalculator;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,8 @@ import org.springframework.util.StringUtils;
 @Service
 @RequiredArgsConstructor
 public class TicketService {
+
+    private static final Logger logger = LoggerFactory.getLogger(TicketService.class);
 
     private static final String TICKET_SEQUENCE = "cinema.seq_cinema_ticket";
 
@@ -34,13 +38,13 @@ public class TicketService {
 
     public ResponseEntity<Void> postMovieTicket(ClientInfo clientInfo) {
         try {
-            //Retrieve id of the ticket to be inserted
+            logger.info("Retrieving id of the ticket to be inserted");
             Long ticketId = jdbcConnector.nextVal(TICKET_SEQUENCE);
-            //Insert ticket inside table
+            logger.info("Inserting ticket inside table");
             insertMovieTicket(ticketId, clientInfo);
-            //call transaction controller
+            logger.info("Call transaction controller");
             callTransactionService(ticketId, clientInfo);
-            //Update cinema hall deleting the chosen seat
+            logger.info("Updating cinema hall deleting the chosen seat");
             updateCinemaHall(ticketId, clientInfo);
             return new ResponseEntity<>(HttpStatus.CREATED);
         } catch (BadRequestException badRequestException) {
@@ -79,11 +83,11 @@ public class TicketService {
             queryBuilder.and(eq("ID_MOVIE", clientInfo.getIdMovie()));
             jdbcConnector.update(queryBuilder.build());
         } catch (SqlConnectionException exception) {
-            //deleting both transaction and ticket
+            logger.error("Deleting both transaction and ticket");
             String queryDeleteTransaction = StringUtils.replace(jdbcQueryMovie.getDeleteTransaction(), "{TICKET_ID}", ticketId.toString());
             String queryDeleteMovieTicket = StringUtils.replace(jdbcQueryMovie.getDeleteMovieTicket(), "{TICKET_ID}", ticketId.toString());
             JdbcQueryBuilder queryBuilder = new JdbcQueryBuilder(queryDeleteTransaction.concat(queryDeleteMovieTicket));
-            jdbcConnector.update(queryBuilder.build());
+            jdbcConnector.delete(queryBuilder.build());
             throw new SqlConnectionException("Error while updating cinema hall");
         }
     }
