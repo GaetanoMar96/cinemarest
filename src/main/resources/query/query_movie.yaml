@@ -43,3 +43,11 @@ t_cinema_transaction:
 
   deleteTransaction:
     "DELETE FROM cinema.T_CINEMA_TRANSACTION WHERE TICKET_ID = {TICKET_ID};"
+
+t_cinema_user:
+  insertUser:
+    "INSERT INTO t_cinema_user
+             (email, firstname, lastname, password, wallet, user_id) 
+         values
+             (?, ?, ?, ?, ?, ?)"
+  selectUserByEmail:

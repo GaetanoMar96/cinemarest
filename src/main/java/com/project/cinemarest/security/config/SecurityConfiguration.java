@@ -1,6 +1,7 @@
 package com.project.cinemarest.security.config;
 
 
+import com.project.cinemarest.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,23 +28,19 @@ public class SecurityConfiguration {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-            .csrf()
-            .disable()
+        http.csrf().disable()
             .authorizeHttpRequests()
-            .requestMatchers(new AntPathRequestMatcher("/api/v1/cinema/users"))
-            .permitAll()
+            .requestMatchers(new AntPathRequestMatcher("/api/v1/cinema/auth/**")).permitAll()
             .requestMatchers(new AntPathRequestMatcher("/api/v1/cinema/movies/**")).authenticated()
-            .anyRequest()
-            .authenticated()
+            .requestMatchers(new AntPathRequestMatcher("/api/v1/cinema/tickets/**")).authenticated()
             .and()
             .sessionManagement()
-            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            .sessionCreationPolicy(SessionCreationPolicy.STATELESS) //New session for each request
             .and()
             .authenticationProvider(authenticationProvider)
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
             .logout()
-            .logoutUrl("/api/v1/auth/logout")
+            .logoutUrl("/api/v1/cinema/auth/logout")
             .addLogoutHandler(logoutHandler)
             .logoutSuccessHandler((request, response, authentication) -> SecurityContextHolder.clearContext());
         return http.build();

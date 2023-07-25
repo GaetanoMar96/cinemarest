@@ -1,8 +1,12 @@
 package com.project.cinemarest.entity;
 
+import com.project.cinemarest.model.Role;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.UUID;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -10,6 +14,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 @Data
@@ -18,22 +23,24 @@ import org.springframework.security.core.userdetails.UserDetails;
 @AllArgsConstructor
 @Entity
 @Table(name = "t_cinema_user")
-public class UserInfo implements UserDetails {
+public class User implements UserDetails {
 
     @Id
     private UUID userId;
-    private String name;
-    private String surname;
+    private String firstname;
+    private String lastname;
 
     private String email;
 
     private String password;
-    private String phone;
     private double wallet;
+
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        return Collections.singleton(new SimpleGrantedAuthority(role.name()));
     }
 
     @Override
