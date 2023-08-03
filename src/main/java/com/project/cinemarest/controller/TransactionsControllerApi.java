@@ -22,4 +22,6 @@ public class TransactionsControllerApi {
        transactionsService.insertTransaction(transaction);
        return new ResponseEntity<>(HttpStatus.CREATED);
     }
+
+    //TODO increase user wallet with post call
 }

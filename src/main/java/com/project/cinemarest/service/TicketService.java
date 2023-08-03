@@ -31,6 +31,8 @@ public class TicketService {
     private static final String TICKET_SEQUENCE = "cinema.seq_cinema_ticket";
 
     private final TransactionsService transactionsService;
+
+    private final UserService userService;
     private final QueryJdbcConnector jdbcConnector;
     private final JdbcQueryMovie jdbcQueryMovie;
 
@@ -46,6 +48,8 @@ public class TicketService {
             callTransactionService(ticketId, clientInfo);
             logger.info("Updating cinema hall deleting the chosen seat");
             updateCinemaHall(ticketId, clientInfo);
+            logger.info("Updating client wallet");
+            callUserService(clientInfo);
             return new ResponseEntity<>(HttpStatus.CREATED);
         } catch (BadRequestException badRequestException) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -92,10 +96,17 @@ public class TicketService {
         }
     }
 
+    private void callUserService(ClientInfo clientInfo) {
+        //update user wallet
+        userService.updateUserWallet(clientInfo.getWallet(), clientInfo.getUserId());
+    }
+
     private double calculateTicketPrice(ClientInfo clientInfo) {
         Integer age = clientInfo.getAge();
         Boolean isStudent = clientInfo.getIsStudent();
         TicketPriceCalculator calculator = PriceCalculatorFactory.createPriceCalculator(age, isStudent);
-        return calculator.calculateTicketPrice(age);
+        double price = calculator.calculateTicketPrice(age);
+        clientInfo.setWallet(clientInfo.getWallet() - price);
+        return price;
     }
 }

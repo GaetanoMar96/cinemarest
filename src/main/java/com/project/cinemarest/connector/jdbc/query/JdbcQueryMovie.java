@@ -20,6 +20,9 @@ public class JdbcQueryMovie {
     @Value("${t_cinema_movie.selectAvailableSeatsForMovie}")
     private String selectAvailableSeatsForMovie;
 
+    @Value("${t_cinema_movie_show.selectAllShowsByMovie}")
+    private String selectAllShowsByMovie;
+
     @Value("${t_cinema_ticket.insertMovieTicket}")
     private String insertMovieTicket;
 

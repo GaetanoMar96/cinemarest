@@ -20,4 +20,8 @@ public class TicketsControllerApi {
     public ResponseEntity<Void> postMovieTicket(@RequestBody ClientInfo clientInfo) {
         return ticketService.postMovieTicket(clientInfo);
     }
+
+    //TODO delete a ticket for a movie (including all backward operations)
+
+    //TODO includere tutti i tipi di cambi di orario e di film da fare solo in seguito
 }

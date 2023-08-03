@@ -13,7 +13,9 @@ t_cinema_movie:
     FROM cinema.T_CINEMA_HALL H
     INNER JOIN cinema.T_CINEMA_MOVIE M
       ON H.ID_MOVIE = M.ID_MOVIE
-    WHERE 1 = 1"
+    INNER JOIN cinema.T_CINEMA_MOVIE_SHOW S
+      ON M.ID_MOVIE = S.ID_MOVIE  
+    WHERE 1=1"
   selectMovieInfo:
     "${t_cinema_movie.selectAllMovies} WHERE 1 = 1"
 
@@ -51,3 +53,12 @@ t_cinema_user:
          values
              (?, ?, ?, ?, ?, ?)"
   selectUserByEmail:
+
+t_cinema_movie_show:
+  selectAllShowsByMovie:
+    "SELECT START_DATE,
+         START_TIME
+    FROM cinema.T_CINEMA_MOVIE_SHOW S
+    INNER JOIN cinema.T_CINEMA_MOVIE M
+      ON S.ID_MOVIE = M.ID_MOVIE
+    WHERE 1=1"

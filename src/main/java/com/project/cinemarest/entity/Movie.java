@@ -1,28 +1,26 @@
 package com.project.cinemarest.entity;
 
-import java.sql.Array;
-import javax.persistence.ElementCollection;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Document(collection = "movies")
 public class Movie {
 
     @Id
-    @GeneratedValue
-    private Long idMovie;
-    private String movieName;
+    private String id;
+    private String title;
+    private String year;
+    private String rated;
+    private String released;
+    private String runtime;
+    private String genre;
     private String director;
-    @ElementCollection
-    private Array actors;
-    private Long duration;
-    private Integer agingRate;
-    private String summary;
+    private String actors;
+    private String plot;
+    private String poster;
+    private String imdbRating;
 }
 
 
