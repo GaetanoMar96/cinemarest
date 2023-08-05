@@ -36,6 +36,8 @@ t_cinema_client:
 t_cinema_hall:
   updateCinemaHall:
     "update cinema.t_cinema_hall set available_seats = ARRAY_REMOVE(available_seats, {SEAT}) WHERE 1 = 1"
+  updateCinemaHallAddingSeat:
+    "update cinema.t_cinema_hall set available_seats = ARRAY_APPEND(available_seats, {SEAT}) WHERE 1 = 1"
 
 t_cinema_transaction:
   insertTransaction:

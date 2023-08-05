@@ -13,8 +13,8 @@ import org.mapstruct.ReportingPolicy;
 )
 public interface TransactionMapper {
 
-    @Mapping(target = "ticketId", source = "ticketId")
+    @Mapping(target = "ticketId", source = "clientInfo.ticketId")
     @Mapping(target = "idMovie", source = "clientInfo.idMovie")
     @Mapping(target = "userId", source = "clientInfo.userId")
-    Transaction mapTransaction(Long ticketId, ClientInfo clientInfo);
+    Transaction mapTransaction(ClientInfo clientInfo);
 }

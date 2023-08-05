@@ -41,13 +41,13 @@ public class MoviesControllerApi {
         return ResponseEntity.of(moviesService.getAvailableSeatsForMovie(movie, date, time));
     }
 
-    @GetMapping(value = "/statistics", produces = {"application/json"})
-    public List<Statistics> getMoviesStatistics() {
-        return Collections.emptyList();
-    }
-
     @GetMapping(value = "/{movie}/info", produces = {"application/json"})
     public ResponseEntity<Movie> getMovieInfo(@PathVariable("movie") String movie) {
         return ResponseEntity.of(moviesService.getMovieInfo(movie));
+    }
+
+    @GetMapping(value = "/statistics", produces = {"application/json"})
+    public List<Statistics> getMoviesStatistics() {
+        return Collections.emptyList();
     }
 }

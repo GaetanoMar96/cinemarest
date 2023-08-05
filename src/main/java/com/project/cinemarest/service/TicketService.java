@@ -39,46 +39,41 @@ public class TicketService {
     private final TransactionMapper transactionMapper;
 
     public ResponseEntity<Void> postMovieTicket(ClientInfo clientInfo) {
-        try {
-            logger.info("Retrieving id of the ticket to be inserted");
-            Long ticketId = jdbcConnector.nextVal(TICKET_SEQUENCE);
-            logger.info("Inserting ticket inside table");
-            insertMovieTicket(ticketId, clientInfo);
-            logger.info("Call transaction controller");
-            callTransactionService(ticketId, clientInfo);
-            logger.info("Updating cinema hall deleting the chosen seat");
-            updateCinemaHall(ticketId, clientInfo);
-            logger.info("Updating client wallet");
-            callUserService(clientInfo);
-            return new ResponseEntity<>(HttpStatus.CREATED);
-        } catch (BadRequestException badRequestException) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        } catch (SqlConnectionException exception) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        logger.info("Retrieving id of the ticket to be inserted");
+        Long ticketId = jdbcConnector.nextVal(TICKET_SEQUENCE);
+        clientInfo.setTicketId(ticketId);
+        logger.info("Inserting ticket inside table");
+        insertMovieTicket(clientInfo);
+        logger.info("Call transaction controller");
+        callTransactionService(clientInfo);
+        logger.info("Updating cinema hall deleting the chosen seat");
+        updateCinemaHall(clientInfo);
+        logger.info("Updating client wallet");
+        callUserService(clientInfo);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    private void insertMovieTicket(Long ticketId, ClientInfo clientInfo) {
-        if (clientInfo.getIdMovie() == null) {
-            throw new BadRequestException();
+    private void insertMovieTicket(ClientInfo clientInfo) {
+        if (clientInfo.getIdMovie() == null || clientInfo.getIdMovie() <= 0) {
+            throw new BadRequestException("id movie cannot be null or <= 0");
         }
         try {
             JdbcQueryBuilder queryBuilder = new JdbcQueryBuilder(jdbcQueryMovie.getInsertMovieTicket());
-            queryBuilder.params(ticketId, clientInfo.getIdMovie(), calculateTicketPrice(clientInfo));
+            queryBuilder.params(clientInfo.getTicketId(), clientInfo.getIdMovie(), calculateTicketPrice(clientInfo));
             jdbcConnector.insert(queryBuilder.build());
         } catch (SqlConnectionException exception) {
             throw new SqlConnectionException("Error while inserting ticket");
         }
     }
 
-    private void callTransactionService(Long ticketId, ClientInfo clientInfo) {
-        Transaction transaction = transactionMapper.mapTransaction(ticketId, clientInfo);
+    private void callTransactionService(ClientInfo clientInfo) {
+        Transaction transaction = transactionMapper.mapTransaction(clientInfo);
         transactionsService.insertTransaction(transaction);
     }
 
-    private void updateCinemaHall(Long ticketId, ClientInfo clientInfo) {
-        if (clientInfo.getSeat() == null) {
-            throw new BadRequestException();
+    private void updateCinemaHall(ClientInfo clientInfo) {
+        if (clientInfo.getSeat() == null || clientInfo.getSeat() <= 0) {
+            throw new BadRequestException("seat cannot be null or negative");
         }
         try {
             String seat = clientInfo.getSeat().toString();
@@ -88,8 +83,8 @@ public class TicketService {
             jdbcConnector.update(queryBuilder.build());
         } catch (SqlConnectionException exception) {
             logger.error("Deleting both transaction and ticket");
-            String queryDeleteTransaction = StringUtils.replace(jdbcQueryMovie.getDeleteTransaction(), "{TICKET_ID}", ticketId.toString());
-            String queryDeleteMovieTicket = StringUtils.replace(jdbcQueryMovie.getDeleteMovieTicket(), "{TICKET_ID}", ticketId.toString());
+            String queryDeleteTransaction = StringUtils.replace(jdbcQueryMovie.getDeleteTransaction(), "{TICKET_ID}", clientInfo.getTicketId().toString());
+            String queryDeleteMovieTicket = StringUtils.replace(jdbcQueryMovie.getDeleteMovieTicket(), "{TICKET_ID}", clientInfo.getTicketId().toString());
             JdbcQueryBuilder queryBuilder = new JdbcQueryBuilder(queryDeleteTransaction.concat(queryDeleteMovieTicket));
             jdbcConnector.delete(queryBuilder.build());
             throw new SqlConnectionException("Error while updating cinema hall");
@@ -97,7 +92,7 @@ public class TicketService {
     }
 
     private void callUserService(ClientInfo clientInfo) {
-        //update user wallet
+        logger.info("updating user wallet");
         userService.updateUserWallet(clientInfo.getWallet(), clientInfo.getUserId());
     }
 

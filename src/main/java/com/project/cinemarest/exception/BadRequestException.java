@@ -5,7 +5,10 @@ import org.springframework.web.server.ResponseStatusException;
 
 public class BadRequestException extends ResponseStatusException {
 
-    public BadRequestException() {
+    private final String message;
+
+    public BadRequestException(String message) {
         super(HttpStatus.BAD_REQUEST);
+        this.message = message;
     }
 }

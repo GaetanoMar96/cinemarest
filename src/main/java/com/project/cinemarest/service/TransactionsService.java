@@ -8,6 +8,7 @@ import com.project.cinemarest.repository.QueryJdbcConnector;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -22,9 +23,14 @@ public class TransactionsService {
             queryBuilder.params(UUID.randomUUID(), transaction.getTicketId(), transaction.getIdMovie(), transaction.getUserId());
             jdbcConnector.insert(queryBuilder.build());
         } catch (Exception exception) {
-            JdbcQueryBuilder queryBuilder = new JdbcQueryBuilder(jdbcQueryMovie.getDeleteMovieTicket());
-            jdbcConnector.delete(queryBuilder.build());
+            deleteTransaction(transaction.getTicketId());
             throw new SqlConnectionException("Error while inserting transaction");
         }
+    }
+
+    public void deleteTransaction(Long id) {
+        String query = StringUtils.replace(jdbcQueryMovie.getDeleteMovieTicket(), "{TICKET_ID}", id.toString());
+        JdbcQueryBuilder queryBuilder = new JdbcQueryBuilder(query);
+        jdbcConnector.delete(queryBuilder.build());
     }
 }
