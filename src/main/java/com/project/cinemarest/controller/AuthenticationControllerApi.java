@@ -2,7 +2,7 @@ package com.project.cinemarest.controller;
 
 import static org.springframework.http.ResponseEntity.ok;
 
-import com.project.cinemarest.model.AuthenticationRequest;
+import com.project.cinemarest.model. AuthenticationRequest;
 import com.project.cinemarest.model.AuthenticationResponse;
 import com.project.cinemarest.model.RegisterRequest;
 import com.project.cinemarest.service.AuthenticationService;
@@ -24,6 +24,7 @@ public class AuthenticationControllerApi {
     public ResponseEntity<AuthenticationResponse> register(@RequestBody RegisterRequest request) {
         return ok(authenticationService.register(request));
     }
+
     @PostMapping("/authenticate")
     public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
         return ok(authenticationService.authenticate(request));

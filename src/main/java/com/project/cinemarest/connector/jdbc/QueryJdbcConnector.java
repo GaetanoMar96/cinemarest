@@ -1,6 +1,5 @@
-package com.project.cinemarest.repository;
+package com.project.cinemarest.connector.jdbc;
 
-import com.project.cinemarest.connector.jdbc.AbstractJdbcConnector;
 import org.springframework.stereotype.Component;
 
 @Component

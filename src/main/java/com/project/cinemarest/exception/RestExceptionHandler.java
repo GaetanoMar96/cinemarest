@@ -4,6 +4,7 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
 import com.project.cinemarest.exception.error.ApiError;
+import javax.persistence.PersistenceException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -79,6 +80,20 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(SqlConnectionException.class)
     public ResponseEntity<Object> handleSqlConnection(SqlConnectionException ex) {
+        ApiError apiError = new ApiError(INTERNAL_SERVER_ERROR);
+        apiError.setMessage(ex.getMessage());
+        apiError.setDebugMessage(getDebugMessageIfExists(ex));
+        return buildResponseEntity(apiError);
+    }
+
+    /**
+     * Handles PersistenceException. Created to encapsulate errors while performing sql operations with jpa.
+     *
+     * @param ex the PersistenceException
+     * @return the ApiError object
+     */
+    @ExceptionHandler(PersistenceException.class)
+    public ResponseEntity<Object> handleSqlConnection(PersistenceException ex) {
         ApiError apiError = new ApiError(INTERNAL_SERVER_ERROR);
         apiError.setMessage(ex.getMessage());
         apiError.setDebugMessage(getDebugMessageIfExists(ex));

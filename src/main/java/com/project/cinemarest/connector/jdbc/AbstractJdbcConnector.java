@@ -1,74 +1,49 @@
 package com.project.cinemarest.connector.jdbc;
 
+import com.project.cinemarest.connector.jdbc.utils.JdbcDataSourceProperties;
 import com.project.cinemarest.connector.jdbc.utils.JdbcQuery;
-import com.project.cinemarest.connector.jdbc.utils.JdbcQueryType;
-import com.project.cinemarest.connector.jdbc.request.JdbcRequest;
-import com.project.cinemarest.connector.jdbc.request.JdbcRequestTransformer;
-import com.project.cinemarest.connector.jdbc.response.JdbcResponse;
-import com.project.cinemarest.connector.jdbc.response.JdbcResponseTransformer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
+import com.project.cinemarest.exception.SqlConnectionException;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import javax.annotation.PostConstruct;
+import javax.sql.DataSource;
+import org.apache.commons.collections4.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 
-public abstract class AbstractJdbcConnector extends JdbcConnector<String, List<Object>, Void, Object> implements JdbcRequestTransformer<String, Void>, JdbcResponseTransformer<Object, List<Object>> {
+public abstract class AbstractJdbcConnector {
 
-    @Override
-    public JdbcRequest<Void> transformInput(String om, Object... args) {
-        JdbcRequest<Void> jdbcConnectorRequest = new JdbcRequest<>();
-        JdbcQueryType queryType = (JdbcQueryType)args[0];
-        jdbcConnectorRequest.setQuery(om);
-        jdbcConnectorRequest.setType(queryType);
-        if (JdbcQueryType.EXECUTE != queryType) {
-            jdbcConnectorRequest.setRowMapper(new BeanPropertyRowMapper<>((Class)args[1]));
-            if (args.length > 2) {
-                jdbcConnectorRequest.setParams(Arrays.copyOfRange(args, 2, args.length));
-            }
+    private static final Logger logger = LoggerFactory.getLogger(AbstractJdbcConnector.class);
+
+    protected JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    private JdbcDataSourceProperties jdbcDataSourceProperties;
+
+    @PostConstruct
+    private void init() {
+        DataSource dataSource = this.jdbcDataSourceProperties.getDataSourceProperties().initializeDataSourceBuilder().build();
+        if (dataSource == null) {
+            throw new ExceptionInInitializerError();
         }
-        return jdbcConnectorRequest;
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public <R> Optional<R> findOne(String qry, Class<R> rowMapper, Object... args) {
-        List<R> results = this.convertListObjectToGeneric(rowMapper, super.call(qry, this, this, this.createArgsArray(JdbcQueryType.FIND, rowMapper, Arrays.asList(args))));
-        return Optional.ofNullable(org.springframework.util.CollectionUtils.isEmpty(results) ? null : results.get(0));
+    public <R> Optional<R> findOne(JdbcQuery jdbcQuery, Class<R> clazz) {
+        RowMapper<R> rowMapper = new BeanPropertyRowMapper<>(clazz);
+        List<R> results = this.jdbcTemplate.query(jdbcQuery.getQuery(), rowMapper, jdbcQuery.getArrayParameters());
+        return Optional.ofNullable(CollectionUtils.isEmpty(results) ? null : results.get(0));
     }
 
-    public <R> List<R> findMany(String qry, Class<R> rowMapper, Object... args) {
-        return this.convertListObjectToGeneric(rowMapper, super.call(qry, this, this, this.createArgsArray(JdbcQueryType.FIND, rowMapper, Arrays.asList(args))));
-    }
-
-    public <R> Optional<R> findOne(JdbcQuery jdbcQuery, Class<R> rowMapper) {
-        List<R> results = this.convertListObjectToGeneric(rowMapper, super.call(jdbcQuery.getQuery(), this, this, this.createArgsArray(JdbcQueryType.FIND, rowMapper, jdbcQuery.getParameters())));
-        return Optional.ofNullable(org.springframework.util.CollectionUtils.isEmpty(results) ? null : results.get(0));
-    }
-
-    public <R> List<R> findMany(JdbcQuery jdbcQuery, Class<R> rowMapper) {
-        return this.convertListObjectToGeneric(rowMapper, super.call(jdbcQuery.getQuery(), this, this, this.createArgsArray(JdbcQueryType.FIND, rowMapper, jdbcQuery.getParameters())));
-    }
-
-    public Long count(String tableName) {
-        return super.caseQueryTypeCOUNT(getCountQuery(tableName));
-    }
-
-    private String getCountQuery(String tableName) {
-        return StringUtils.replace("SELECT COUNT(*) FROM {TABLE_NAME}", "{TABLE_NAME}", tableName);
-    }
-
-    public void insert(String qry, Object... args) {
-        this.cud(qry, Arrays.asList(args));
-    }
-
-    public void update(String qry, Object... args) {
-        this.cud(qry, Arrays.asList(args));
-    }
-
-    public void delete(String qry, Object... args) {
-        this.cud(qry, Arrays.asList(args));
+    public <R> List<R> findMany(JdbcQuery jdbcQuery, Class<R> clazz) {
+        RowMapper<R> rowMapper = new BeanPropertyRowMapper<>(clazz);
+        return this.jdbcTemplate.query(jdbcQuery.getQuery(), rowMapper, jdbcQuery.getArrayParameters());
     }
 
     public void insert(JdbcQuery jdbcQuery) {
@@ -83,38 +58,61 @@ public abstract class AbstractJdbcConnector extends JdbcConnector<String, List<O
         this.cud(jdbcQuery.getQuery(), jdbcQuery.getParameters());
     }
 
-    private void cud(String qry, List<Object> args) {
-        this.call(qry, this, this, this.createArgsArray(JdbcQueryType.UPDATE, Object.class, args));
+    private String getCountQuery(String tableName) {
+        return StringUtils.replace("SELECT COUNT(*) FROM {TABLE_NAME}", "{TABLE_NAME}", tableName);
     }
 
-    private <R> Object[] createArgsArray(JdbcQueryType queryType, Class<R> rowMapper, List<Object> args) {
-        List<Object> argsList = new ArrayList<>(3);
-        argsList.add(queryType);
-        argsList.add(rowMapper);
-        argsList.addAll(args);
-        return argsList.toArray();
-    }
-
-    private <R> List<R> convertListObjectToGeneric(Class<R> returnType, List<Object> toConvert) {
-        Stream<Object> variable = toConvert.stream();
-        variable = variable.filter(returnType::isInstance);
-        return variable.map(returnType::cast).collect(Collectors.toList());
+    public Long getCount(String tableName) {
+        return this.executeCount(getCountQuery(tableName));
     }
 
     public Long nextVal(String sequenceName) {
-        return super.caseQueryTypeSEQUENCE(nextValSequenceQuery(sequenceName));
+        return this.executeSequence(nextValSequenceQuery(sequenceName));
     }
 
     private String nextValSequenceQuery(String sequenceName) {
         return StringUtils.replace("SELECT NEXTVAL('{SEQUENCE}') AS VALUE", "{SEQUENCE}", sequenceName);
     }
 
-    @Override
-    public List<Object> transformOutput(JdbcResponse<Object> jdbcResponse) {
-        if (jdbcResponse.getResult() != null) {
-            return jdbcResponse.getResult();
-        } else {
-            return Collections.emptyList();
+    /**
+     * Generic method to execute update, delete and insert
+     * @param qry query to be executed
+     * @param args arguments to pass to the query
+     */
+    protected void cud(String qry, List<Object> args) {
+        try {
+            int resultSize = this.jdbcTemplate.update(qry, args.toArray());
+            if (resultSize > 0) {
+                logger.debug("JDBC Query correctly executed.");
+            } else {
+                logger.error("Failed Update JDBC Query.");
+            }
+        } catch (DataAccessException exception) {
+            throw new SqlConnectionException(exception.getMessage());
+        }
+    }
+
+    protected Long executeSequence(String query) {
+        try {
+            Long nextVal = this.jdbcTemplate.queryForObject(query, Long.class);
+            if (nextVal == null) {
+                throw new SqlConnectionException("Failed retrieving sequence from JDBC Query.");
+            }
+            return nextVal - 1;
+        } catch (DataAccessException exception) {
+            throw new SqlConnectionException(exception.getMessage());
+        }
+    }
+
+    protected Long executeCount(String query) {
+        try {
+            Long count = this.jdbcTemplate.queryForObject(query, Long.class);
+            if (count == null) {
+                throw new SqlConnectionException("Failed retrieving sequence from JDBC Query.");
+            }
+            return count;
+        } catch (DataAccessException exception) {
+            throw new SqlConnectionException(exception.getMessage());
         }
     }
 }

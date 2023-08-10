@@ -1,12 +1,4 @@
 t_cinema_movie:
-  selectAllMovies:
-      "SELECT MOVIE_NAME,
-         DIRECTOR,
-         ACTORS,
-         DURATION,
-         AGING_RATE,
-         SUMMARY
-       FROM cinema.T_CINEMA_MOVIE M"
   selectAvailableSeatsForMovie:
     "SELECT BASE_COST,
       AVAILABLE_SEATS
@@ -16,8 +8,6 @@ t_cinema_movie:
     INNER JOIN cinema.T_CINEMA_MOVIE_SHOW S
       ON M.ID_MOVIE = S.ID_MOVIE  
     WHERE 1=1"
-  selectMovieInfo:
-    "${t_cinema_movie.selectAllMovies} WHERE 1 = 1"
 
 t_cinema_ticket:
   insertMovieTicket:
@@ -25,13 +15,8 @@ t_cinema_ticket:
      	VALUES (?, ?, ?);"
   deleteMovieTicket:
     "DELETE FROM cinema.T_CINEMA_TICKET WHERE TICKET_ID = {TICKET_ID};"
-
-t_cinema_client:
-  insertClientInfo:
-    "INSERT INTO cinema.T_CINEMA_CLIENT(client_id, id_movie, ticket_id, client_name, client_surname, client_email,client_phone)
-     	VALUES (?, ?, ?, ?, ?, ?, ?);"
-  deleteClientInfo:
-    "DELETE FROM cinema.T_CINEMA_CLIENT WHERE TICKET_ID = {TICKET_ID}"
+  selectPriceForMovieTicket:
+    "SELECT COST FROM cinema.T_CINEMA_TICKET WHERE TICKET_ID = {TICKET_ID};"
 
 t_cinema_hall:
   updateCinemaHall:
@@ -54,7 +39,6 @@ t_cinema_user:
              (email, firstname, lastname, password, wallet, user_id) 
          values
              (?, ?, ?, ?, ?, ?)"
-  selectUserByEmail:
 
 t_cinema_movie_show:
   selectAllShowsByMovie:

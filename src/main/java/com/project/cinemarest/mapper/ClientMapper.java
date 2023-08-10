@@ -1,6 +1,6 @@
 package com.project.cinemarest.mapper;
 
-import com.project.cinemarest.connector.jdbc.utils.JdbcQuery.JdbcQueryBuilder;
+import com.project.cinemarest.connector.jdbc.utils.JdbcQuery;
 import com.project.cinemarest.model.ClientInfo;
 import java.util.UUID;
 import org.mapstruct.Mapper;
@@ -13,7 +13,7 @@ import org.mapstruct.ReportingPolicy;
 )
 public interface ClientMapper {
 
-    default void getClientParams(JdbcQueryBuilder queryBuilder, Long ticketId, ClientInfo clientInfo) {
-        queryBuilder.params(UUID.randomUUID(), clientInfo.getIdMovie(), ticketId);
+    default void getClientParams(JdbcQuery queryBuilder, Long ticketId, ClientInfo clientInfo) {
+        queryBuilder.setParameters(UUID.randomUUID(), clientInfo.getIdMovie(), ticketId);
     }
 }

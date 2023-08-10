@@ -1,7 +1,6 @@
 package com.project.cinemarest.connector.jpa;
 
-import com.project.cinemarest.entity.User;
-import java.util.Optional;
+import com.project.cinemarest.entity.Transaction;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -9,11 +8,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, UUID> {
-
-    Optional<User> findByEmail(String email);
+public interface TransactionRepository extends JpaRepository<Transaction, UUID> {
 
     @Modifying
-    @Query("update User u set u.wallet = :price where u.userId = :id")
-    int updateUserWallet(double price, UUID id);
+    @Query("delete from Transaction t where t.ticketId = :ticketId")
+    int deleteTransaction(Long ticketId);
 }

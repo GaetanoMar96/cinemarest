@@ -20,13 +20,12 @@ public class UserService {
         userRepository.saveAndFlush(user);
     }
 
-    @Transactional
     public User findByEmail(String email) {
         return userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
     @Transactional
     public void updateUserWallet(Double price, UUID userId) {
-        userRepository.updateUserWalletAfterPayment(price, userId);
+        userRepository.updateUserWallet(price, userId);
     }
 }

@@ -1,13 +1,10 @@
-package com.project.cinemarest.controller;
+package com.project.cinemarest.controller.cinema;
 
-import com.project.cinemarest.entity.Movie;
 import com.project.cinemarest.entity.Show;
 import com.project.cinemarest.model.Seat;
-import com.project.cinemarest.model.Statistics;
 import com.project.cinemarest.service.MoviesService;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -18,16 +15,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/cinema/movies")
+@RequestMapping("/api/v1/cinema")
 @RequiredArgsConstructor
-public class MoviesControllerApi {
+public class CinemaControllerApi {
 
     private final MoviesService moviesService;
-
-    @GetMapping(value = "/all", produces = {"application/json"})
-    public ResponseEntity<List<Movie>> getAvailableMoviesList() {
-        return ResponseEntity.ok(moviesService.getAllMovies());
-    }
 
     @GetMapping(value = "/{movie}/shows", produces = {"application/json"})
     public ResponseEntity<List<Show>> getAllShowsForMovie(@PathVariable("movie") String movie) {
@@ -39,15 +31,5 @@ public class MoviesControllerApi {
         @PathVariable("date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
         @PathVariable("time") @DateTimeFormat(pattern = "HH:mm") LocalTime time) {
         return ResponseEntity.of(moviesService.getAvailableSeatsForMovie(movie, date, time));
-    }
-
-    @GetMapping(value = "/{movie}/info", produces = {"application/json"})
-    public ResponseEntity<Movie> getMovieInfo(@PathVariable("movie") String movie) {
-        return ResponseEntity.of(moviesService.getMovieInfo(movie));
-    }
-
-    @GetMapping(value = "/statistics", produces = {"application/json"})
-    public List<Statistics> getMoviesStatistics() {
-        return Collections.emptyList();
     }
 }

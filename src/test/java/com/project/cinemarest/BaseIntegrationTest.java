@@ -1,7 +1,12 @@
 package com.project.cinemarest;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.project.cinemarest.entity.Show;
+import java.util.Arrays;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,4 +26,12 @@ public abstract class BaseIntegrationTest {
     @Autowired
     protected MockMvc mockMvc;
     protected final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+
+    protected <T> T getObjectFromResponse(String response, Class<T> clazz) throws JsonProcessingException {
+        return objectMapper.readValue(response, clazz);
+    }
+
+    protected <T> List<T> getListFromResponse(String response, TypeReference<List<T>> typeReference) throws JsonProcessingException {
+        return objectMapper.readValue(response, typeReference);
+    }
 }

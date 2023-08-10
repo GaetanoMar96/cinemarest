@@ -1,7 +1,7 @@
 package com.project.cinemarest.mapper;
 
 
-import com.project.cinemarest.entity.TCinemaSeat;
+import com.project.cinemarest.entity.Hall;
 import com.project.cinemarest.model.Seat;
 import java.sql.SQLException;
 import java.util.Optional;
@@ -19,11 +19,11 @@ public interface MovieMapper {
 
     Logger logger = LoggerFactory.getLogger(MovieMapper.class);
 
-    default Optional<Seat> mapSeat(TCinemaSeat tCinemaSeat) {
+    default Optional<Seat> mapSeat(Hall hall) {
         try {
-            Integer[] array = (Integer[]) tCinemaSeat.getAvailableSeats().getArray();
+            Integer[] array = (Integer[]) hall.getAvailableSeats().getArray();
             Seat seat = new Seat();
-            seat.setBaseCost(tCinemaSeat.getBaseCost());
+            seat.setBaseCost(hall.getBaseCost());
             seat.setAvailableSeats(array);
             return Optional.of(seat);
         } catch (SQLException exception) {

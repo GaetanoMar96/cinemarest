@@ -1,18 +1,21 @@
 package com.project.cinemarest.service;
 
 
-import static com.project.cinemarest.connector.jdbc.utils.JdbcQuery.JdbcQueryBuilder.eq;
-
 import com.project.cinemarest.connector.jdbc.query.JdbcQueryMovie;
-import com.project.cinemarest.connector.jdbc.utils.JdbcQuery.JdbcQueryBuilder;
+import com.project.cinemarest.connector.jdbc.utils.JdbcQuery;
+import com.project.cinemarest.connector.jdbc.utils.JdbcQuery.OperatorEnum;
+import com.project.cinemarest.connector.jpa.TicketRepository;
+import com.project.cinemarest.entity.Ticket;
 import com.project.cinemarest.exception.BadRequestException;
 import com.project.cinemarest.exception.SqlConnectionException;
 import com.project.cinemarest.factory.PriceCalculatorFactory;
+import com.project.cinemarest.mapper.TicketMapper;
 import com.project.cinemarest.mapper.TransactionMapper;
 import com.project.cinemarest.model.ClientInfo;
-import com.project.cinemarest.model.Transaction;
-import com.project.cinemarest.repository.QueryJdbcConnector;
+import com.project.cinemarest.entity.Transaction;
+import com.project.cinemarest.connector.jdbc.QueryJdbcConnector;
 import com.project.cinemarest.factory.TicketPriceCalculator;
+import javax.persistence.PersistenceException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +41,10 @@ public class TicketService {
 
     private final TransactionMapper transactionMapper;
 
+    private final TicketRepository ticketRepository;
+
+    private final TicketMapper ticketMapper;
+
     public ResponseEntity<Void> postMovieTicket(ClientInfo clientInfo) {
         logger.info("Retrieving id of the ticket to be inserted");
         Long ticketId = jdbcConnector.nextVal(TICKET_SEQUENCE);
@@ -58,10 +65,10 @@ public class TicketService {
             throw new BadRequestException("id movie cannot be null or <= 0");
         }
         try {
-            JdbcQueryBuilder queryBuilder = new JdbcQueryBuilder(jdbcQueryMovie.getInsertMovieTicket());
-            queryBuilder.params(clientInfo.getTicketId(), clientInfo.getIdMovie(), calculateTicketPrice(clientInfo));
-            jdbcConnector.insert(queryBuilder.build());
-        } catch (SqlConnectionException exception) {
+            Ticket ticket = ticketMapper.mapTicket(clientInfo);
+            ticket.setCost(calculateTicketPrice(clientInfo));
+            ticketRepository.saveAndFlush(ticket);
+        } catch (PersistenceException exception) {
             throw new SqlConnectionException("Error while inserting ticket");
         }
     }
@@ -78,15 +85,13 @@ public class TicketService {
         try {
             String seat = clientInfo.getSeat().toString();
             String query = StringUtils.replace(jdbcQueryMovie.getUpdateCinemaHall(), "{SEAT}", seat);
-            JdbcQueryBuilder queryBuilder = new JdbcQueryBuilder(query);
-            queryBuilder.and(eq("ID_MOVIE", clientInfo.getIdMovie()));
-            jdbcConnector.update(queryBuilder.build());
+            JdbcQuery jdbcQuery = new JdbcQuery(query);
+            jdbcQuery.eq(OperatorEnum.AND, "ID_MOVIE", clientInfo.getIdMovie());
+            jdbcConnector.update(jdbcQuery);
         } catch (SqlConnectionException exception) {
             logger.error("Deleting both transaction and ticket");
-            String queryDeleteTransaction = StringUtils.replace(jdbcQueryMovie.getDeleteTransaction(), "{TICKET_ID}", clientInfo.getTicketId().toString());
-            String queryDeleteMovieTicket = StringUtils.replace(jdbcQueryMovie.getDeleteMovieTicket(), "{TICKET_ID}", clientInfo.getTicketId().toString());
-            JdbcQueryBuilder queryBuilder = new JdbcQueryBuilder(queryDeleteTransaction.concat(queryDeleteMovieTicket));
-            jdbcConnector.delete(queryBuilder.build());
+            transactionsService.deleteTransaction(clientInfo.getTicketId());
+            ticketRepository.deleteTicket(clientInfo.getTicketId());
             throw new SqlConnectionException("Error while updating cinema hall");
         }
     }

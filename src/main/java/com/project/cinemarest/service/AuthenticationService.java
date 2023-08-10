@@ -35,6 +35,7 @@ public class AuthenticationService {
         String jwtToken = jwtService.generateToken(user);
         userService.insertUser(user);
         return AuthenticationResponse.builder()
+            .userId(user.getUserId())
             .accessToken(jwtToken)
             .build();
     }
@@ -49,6 +50,7 @@ public class AuthenticationService {
         User user = userService.findByEmail(request.getEmail());
         String jwtToken = jwtService.generateToken(user);
         return AuthenticationResponse.builder()
+            .userId(user.getUserId())
             .accessToken(jwtToken)
             .build();
     }
