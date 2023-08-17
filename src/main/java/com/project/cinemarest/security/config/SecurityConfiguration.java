@@ -38,6 +38,7 @@ public class SecurityConfiguration {
             .csrf().disable()
             .authorizeHttpRequests()
             .requestMatchers(new AntPathRequestMatcher("/api/v1/cinema/auth/**")).permitAll()
+            .requestMatchers(new AntPathRequestMatcher("/api/v1/cinema/**")).authenticated()
             .requestMatchers(new AntPathRequestMatcher("/api/v1/cinema/movies/**")).authenticated()
             .requestMatchers(new AntPathRequestMatcher("/api/v1/cinema/tickets/**")).authenticated()
             .and()

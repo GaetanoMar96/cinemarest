@@ -5,6 +5,8 @@ import com.project.cinemarest.entity.User;
 
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,4 +30,11 @@ public class UserService {
     public void updateUserWallet(Double price, UUID userId) {
         userRepository.updateUserWallet(price, userId);
     }
+
+    @Transactional
+    public ResponseEntity<Void> updateUserInfo(String userId, Integer age, Boolean isStudent) {
+        userRepository.updateUserInfo(UUID.fromString(userId), age, isStudent);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }
+

@@ -17,9 +17,9 @@ public class TransactionsControllerApi {
     private final TransactionsService transactionsService;
 
     @PutMapping(value = "/transaction/{userId}/{price}", produces = {"application/json"})
-    public ResponseEntity<Void> postTransaction(@PathVariable("userId") String userId,
+    public ResponseEntity<Void> putTransaction(@PathVariable("userId") String userId,
         @PathVariable("price") Double price) {
        transactionsService.increaseUserWallet(userId, price);
-       return new ResponseEntity<>(HttpStatus.CREATED);
+       return new ResponseEntity<>(HttpStatus.OK);
     }
 }

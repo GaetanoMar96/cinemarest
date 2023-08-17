@@ -1,6 +1,5 @@
 package com.project.cinemarest.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,7 +15,8 @@ public class AuthenticationResponse {
     private UUID userId;
     private String firstname;
     private String lastname;
-
-    @JsonProperty("access_token")
     private String accessToken;
+
+    private Integer age;
+    private Boolean isStudent;
 }

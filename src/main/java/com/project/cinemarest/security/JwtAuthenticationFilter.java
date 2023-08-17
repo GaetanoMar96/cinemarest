@@ -1,5 +1,6 @@
 package com.project.cinemarest.security;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import java.io.IOException;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -7,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -46,7 +48,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
         jwt = StringUtils.substring(authHeader, 7); //Extract token
-        userEmail = jwtService.extractUsername(jwt);
+        userEmail = extractUserEmail(response, jwt); //Extract user mail or throw exception i token expired
+
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) { //User not authenticated
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
             if (jwtService.isTokenValid(jwt, userDetails)) {
@@ -60,5 +63,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
         filterChain.doFilter(request, response);
+    }
+
+    private String extractUserEmail(HttpServletResponse response, String jwt) {
+        try {
+            return jwtService.extractUsername(jwt);
+        } catch (ExpiredJwtException exception) {
+            response.setStatus(403); //FORBIDDEN
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            throw exception;
+        }
     }
 }
