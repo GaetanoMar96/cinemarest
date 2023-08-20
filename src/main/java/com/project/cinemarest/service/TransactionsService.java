@@ -1,6 +1,6 @@
 package com.project.cinemarest.service;
 
-import com.project.cinemarest.connector.jpa.TransactionRepository;
+import com.project.cinemarest.connector.jpa.repo.TransactionRepository;
 import com.project.cinemarest.exception.SqlConnectionException;
 import com.project.cinemarest.entity.Transaction;
 import java.util.UUID;

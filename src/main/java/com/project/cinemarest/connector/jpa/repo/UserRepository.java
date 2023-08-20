@@ -1,4 +1,4 @@
-package com.project.cinemarest.connector.jpa;
+package com.project.cinemarest.connector.jpa.repo;
 
 import com.project.cinemarest.entity.User;
 import java.util.Optional;
@@ -18,6 +18,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     int updateUserWallet(double price, UUID id);
 
     @Modifying
-    @Query("update User u set u.age = :age, u.isStudent = :isSTudent where u.userId = :id")
+    @Query("update User u set u.age = :age, u.isStudent = :isStudent where u.userId = :id")
     int updateUserInfo(UUID id, Integer age, Boolean isStudent);
 }

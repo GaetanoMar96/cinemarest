@@ -29,12 +29,13 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @Override
     protected ResponseEntity<Object> handleMissingServletRequestParameter(
-        MissingServletRequestParameterException ex, HttpHeaders headers,
-        HttpStatus status, WebRequest request) {
+        MissingServletRequestParameterException ex,
+        HttpHeaders headers,
+        HttpStatus status,
+        WebRequest request) {
         String error = ex.getParameterName() + " parameter is missing";
         return buildResponseEntity(new ApiError(BAD_REQUEST, error, ex));
     }
-
 
     /**
      * Handle HttpMediaTypeNotSupportedException. This one triggers when JSON is invalid as well.

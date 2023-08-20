@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 public class Seat {
 
     private Double baseCost;
-    private Integer[] availableSeats;
+    private String[] availableSeats;
 
 }

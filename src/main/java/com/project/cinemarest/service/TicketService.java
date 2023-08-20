@@ -4,7 +4,7 @@ package com.project.cinemarest.service;
 import com.project.cinemarest.connector.jdbc.query.JdbcQueryMovie;
 import com.project.cinemarest.connector.jdbc.utils.JdbcQuery;
 import com.project.cinemarest.connector.jdbc.utils.JdbcQuery.OperatorEnum;
-import com.project.cinemarest.connector.jpa.TicketRepository;
+import com.project.cinemarest.connector.jpa.repo.TicketRepository;
 import com.project.cinemarest.entity.Ticket;
 import com.project.cinemarest.exception.BadRequestException;
 import com.project.cinemarest.exception.SqlConnectionException;
@@ -79,11 +79,11 @@ public class TicketService {
     }
 
     private void updateCinemaHall(ClientInfo clientInfo) {
-        if (clientInfo.getSeat() == null || clientInfo.getSeat() <= 0) {
+        if (clientInfo.getSeat() == null) {
             throw new BadRequestException("seat cannot be null or negative");
         }
         try {
-            String seat = clientInfo.getSeat().toString();
+            String seat = clientInfo.getSeat();
             String query = StringUtils.replace(jdbcQueryMovie.getUpdateCinemaHall(), "{SEAT}", seat);
             JdbcQuery jdbcQuery = new JdbcQuery(query);
             jdbcQuery.eq(OperatorEnum.AND, "ID_MOVIE", clientInfo.getIdMovie());

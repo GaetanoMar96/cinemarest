@@ -21,5 +21,5 @@ public class ClientInfo {
     private Long ticketId;
 
     //Seat chosen by the customer
-    private Integer seat;
+    private String seat;
 }

@@ -9,7 +9,7 @@ public class TestUtils {
         ClientInfo clientInfo = new ClientInfo();
         clientInfo.setUserId(UUID.fromString("41e822f6-d648-4a1c-acc3-44c8336b4665"));
         clientInfo.setIdMovie(1L);
-        clientInfo.setSeat(1);
+        clientInfo.setSeat("A1");
         clientInfo.setIsStudent(true);
         clientInfo.setAge(age);
         clientInfo.setWallet(0);

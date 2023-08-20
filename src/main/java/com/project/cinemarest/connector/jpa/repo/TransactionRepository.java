@@ -1,4 +1,4 @@
-package com.project.cinemarest.connector.jpa;
+package com.project.cinemarest.connector.jpa.repo;
 
 import com.project.cinemarest.entity.Transaction;
 import java.util.UUID;

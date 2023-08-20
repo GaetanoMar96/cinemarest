@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
@@ -16,7 +16,7 @@ public class TransactionsControllerApi {
 
     private final TransactionsService transactionsService;
 
-    @PutMapping(value = "/transaction/{userId}/{price}", produces = {"application/json"})
+    @PatchMapping(value = "/transaction/{userId}/{price}", produces = {"application/json"})
     public ResponseEntity<Void> putTransaction(@PathVariable("userId") String userId,
         @PathVariable("price") Double price) {
        transactionsService.increaseUserWallet(userId, price);

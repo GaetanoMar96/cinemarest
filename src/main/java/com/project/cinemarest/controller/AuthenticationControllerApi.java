@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,7 +35,7 @@ public class AuthenticationControllerApi {
         return ok(authenticationService.authenticate(request));
     }
 
-    @PutMapping("/update/{userId}/{age}/{isStudent}")
+    @PatchMapping("/update/{userId}/{age}/{isStudent}")
     public ResponseEntity<Void> updateUser(
         @PathVariable("userId") String userId,
         @PathVariable("age") Integer age,

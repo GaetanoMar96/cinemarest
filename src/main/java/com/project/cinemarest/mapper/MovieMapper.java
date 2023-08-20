@@ -21,7 +21,7 @@ public interface MovieMapper {
 
     default Optional<Seat> mapSeat(Hall hall) {
         try {
-            Integer[] array = (Integer[]) hall.getAvailableSeats().getArray();
+            String[] array = (String[]) hall.getAvailableSeats().getArray();
             Seat seat = new Seat();
             seat.setBaseCost(hall.getBaseCost());
             seat.setAvailableSeats(array);

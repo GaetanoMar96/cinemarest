@@ -26,7 +26,7 @@ CREATE TABLE cinema.t_cinema_hall
     id_movie        bigint                            NOT NULL,
     base_cost       double precision                  NOT NULL,
     total_seats     integer,
-    available_seats integer[]
+    available_seats varchar[]
 );
 
 CREATE TABLE cinema.t_cinema_user
