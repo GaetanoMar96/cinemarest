@@ -61,7 +61,7 @@ public class CinemaControllerApiTest extends BaseIntegrationTest {
                             .headers(new HttpHeaders())
                             .contentType(APPLICATION_JSON))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("availableSeats").value(new Integer[]{1,2,3,4,5}));
+            .andExpect(jsonPath("availableSeats[0]").value("A1"));
     }
 
     @Test

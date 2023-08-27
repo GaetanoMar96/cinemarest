@@ -61,7 +61,7 @@ public class TicketService {
     }
 
     private void insertMovieTicket(ClientInfo clientInfo) {
-        if (clientInfo.getIdMovie() == null || clientInfo.getIdMovie() <= 0) {
+        if (clientInfo.getIdMovie() == null) {
             throw new BadRequestException("id movie cannot be null or <= 0");
         }
         try {
@@ -79,15 +79,17 @@ public class TicketService {
     }
 
     private void updateCinemaHall(ClientInfo clientInfo) {
-        if (clientInfo.getSeat() == null) {
+        if (clientInfo.getSeats() == null) {
             throw new BadRequestException("seat cannot be null or negative");
         }
         try {
-            String seat = clientInfo.getSeat();
-            String query = StringUtils.replace(jdbcQueryMovie.getUpdateCinemaHall(), "{SEAT}", seat);
-            JdbcQuery jdbcQuery = new JdbcQuery(query);
-            jdbcQuery.eq(OperatorEnum.AND, "ID_MOVIE", clientInfo.getIdMovie());
-            jdbcConnector.update(jdbcQuery);
+            String[] seats = clientInfo.getSeats();
+            for(String seat : seats) {
+                String query = StringUtils.replace(jdbcQueryMovie.getUpdateCinemaHall(), "{SEAT}", seat);
+                JdbcQuery jdbcQuery = new JdbcQuery(query);
+                jdbcQuery.eq(OperatorEnum.AND, "ID_MOVIE", clientInfo.getIdMovie());
+                jdbcConnector.update(jdbcQuery);
+            }
         } catch (SqlConnectionException exception) {
             logger.error("Deleting both transaction and ticket");
             transactionsService.deleteTransaction(clientInfo.getTicketId());

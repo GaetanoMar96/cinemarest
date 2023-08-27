@@ -13,7 +13,7 @@ public class Hall {
 
     private String hallName;
 
-    private Integer idMovie;
+    private String idMovie;
 
     private Double baseCost;
     private PgArray availableSeats;

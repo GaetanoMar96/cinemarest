@@ -17,7 +17,7 @@ public class Ticket {
     @Id
     private Long ticketId;
 
-    private Long idMovie;
+    private String idMovie;
 
     private Double cost;
 }

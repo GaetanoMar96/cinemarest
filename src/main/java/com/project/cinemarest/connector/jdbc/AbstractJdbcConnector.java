@@ -17,7 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
-public abstract class AbstractJdbcConnector {
+public abstract class AbstractJdbcConnector<T> {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractJdbcConnector.class);
 
@@ -111,6 +111,14 @@ public abstract class AbstractJdbcConnector {
                 throw new SqlConnectionException("Failed retrieving sequence from JDBC Query.");
             }
             return count;
+        } catch (DataAccessException exception) {
+            throw new SqlConnectionException(exception.getMessage());
+        }
+    }
+
+    public T getNumberValue(String query, Class<T> clazz) {
+        try {
+            return this.jdbcTemplate.queryForObject(query, clazz);
         } catch (DataAccessException exception) {
             throw new SqlConnectionException(exception.getMessage());
         }

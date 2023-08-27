@@ -8,7 +8,6 @@ import com.project.cinemarest.connector.jpa.repo.TicketRepository;
 import com.project.cinemarest.exception.BadRequestException;
 import com.project.cinemarest.model.ClientInfo;
 import com.project.cinemarest.connector.jdbc.QueryJdbcConnector;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
@@ -34,11 +33,11 @@ public class DeleteTicketService {
 
     private final TicketRepository ticketRepository;
 
-    private Optional<Double> cost;
+    private Double cost;
 
     public ResponseEntity<Void> deleteMovieTicket(ClientInfo clientInfo) {
         logger.info("Storing synchronously the ticket cost to be updated at the end");
-        retrieveTicketCost();
+        retrieveTicketCost(clientInfo.getTicketId());
         logger.info("calling asynchronously all the operations to delete the purchased ticket");
         deleteTicketAsync(clientInfo);
         logger.info("Updating user wallet");
@@ -70,22 +69,25 @@ public class DeleteTicketService {
     }
 
     private void updateCinemaHallAddingSeat(ClientInfo clientInfo) {
-        if (clientInfo.getSeat() == null) {
+        if (clientInfo.getSeats() == null) {
             throw new BadRequestException("seat cannot be null or negative");
         }
 
-        String seat = clientInfo.getSeat();
-        String query = StringUtils.replace(jdbcQueryMovie.getUpdateCinemaHallAddingSeat(), "{SEAT}", seat);
-        JdbcQuery jdbcQuery = new JdbcQuery(query);
-        jdbcQuery.eq(OperatorEnum.AND, "ID_MOVIE", clientInfo.getIdMovie());
-        jdbcConnector.update(jdbcQuery);
+        String[] seats = clientInfo.getSeats();
+        for(String seat : seats) {
+            String query = StringUtils.replace(jdbcQueryMovie.getUpdateCinemaHallAddingSeat(), "{SEAT}", seat);
+            JdbcQuery jdbcQuery = new JdbcQuery(query);
+            jdbcQuery.eq(OperatorEnum.AND, "ID_MOVIE", clientInfo.getIdMovie());
+            jdbcConnector.update(jdbcQuery);
+        }
     }
 
-    private void retrieveTicketCost() {
-        this.cost = jdbcConnector.findOne(new JdbcQuery(jdbcQueryMovie.getSelectPriceForMovieTicket()), Double.class);
+    private void retrieveTicketCost(Long ticketId) {
+        String query = StringUtils.replace(jdbcQueryMovie.getSelectPriceForMovieTicket(), "{TICKET_ID}", ticketId.toString());
+        this.cost = (Double) jdbcConnector.getNumberValue(query, Double.class);
     }
 
     private void updateUserWalletSync(UUID userId) {
-        this.cost.ifPresent(aDouble -> userService.updateUserWallet(aDouble, userId));
+        userService.updateUserWallet(this.cost, userId);
     }
 }

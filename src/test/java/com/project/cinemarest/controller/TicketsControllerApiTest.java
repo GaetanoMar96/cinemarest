@@ -1,8 +1,10 @@
 package com.project.cinemarest.controller;
 
 import static com.project.cinemarest.utils.TestUtils.createClient;
+import static com.project.cinemarest.utils.TestUtils.createClientToDelete;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.project.cinemarest.BaseIntegrationTest;
@@ -85,12 +87,23 @@ public class TicketsControllerApiTest extends BaseIntegrationTest {
     @Test
     void postMovieTicket_missingSeat_expectedStatus400() throws Exception {
         ClientInfo clientInfo = createClient(30);
-        clientInfo.setSeat(null);
+        clientInfo.setSeats(null);
         mockMvc.perform(post("/api/v1/cinema/tickets/ticket")
                             .headers(new HttpHeaders())
                             .contentType(APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(clientInfo)))
             .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void deleteMovieTicket_expectedStatus200() throws Exception {
+        ClientInfo clientInfo = createClientToDelete(18);
+        clientInfo.setUserId(null);
+        mockMvc.perform(delete("/api/v1/cinema/tickets/ticket/remove")
+                            .headers(new HttpHeaders())
+                            .contentType(APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(clientInfo)))
+            .andExpect(status().isOk());
     }
 
     @AfterAll

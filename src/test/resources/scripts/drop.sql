@@ -1,4 +1,3 @@
-DROP SEQUENCE IF EXISTS cinema.seq_cinema_movie;
 DROP SEQUENCE IF EXISTS cinema.seq_cinema_ticket;
 
 DROP TABLE IF EXISTS cinema.t_cinema_transaction CASCADE;

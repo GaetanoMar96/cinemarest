@@ -20,7 +20,7 @@ public class Transaction {
 
     private Long ticketId;
 
-    private Long idMovie;
+    private String idMovie;
 
     private UUID userId;
 }
