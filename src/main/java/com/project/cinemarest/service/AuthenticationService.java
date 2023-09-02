@@ -29,7 +29,7 @@ public class AuthenticationService {
             .lastname(request.getLastname())
             .email(request.getEmail())
             .password(passwordEncoder.encode(request.getPassword()))
-            .wallet(0) //at registration the wallet is empty
+            //.wallet(0) //at registration the wallet is empty
             .role(request.getRole())
             .build();
         String jwtToken = jwtService.generateToken(user);

@@ -8,7 +8,6 @@ import com.project.cinemarest.connector.jpa.repo.TicketRepository;
 import com.project.cinemarest.exception.BadRequestException;
 import com.project.cinemarest.model.ClientInfo;
 import com.project.cinemarest.connector.jdbc.QueryJdbcConnector;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -33,15 +32,9 @@ public class DeleteTicketService {
 
     private final TicketRepository ticketRepository;
 
-    private Double cost;
-
     public ResponseEntity<Void> deleteMovieTicket(ClientInfo clientInfo) {
-        logger.info("Storing synchronously the ticket cost to be updated at the end");
-        retrieveTicketCost(clientInfo.getTicketId());
         logger.info("calling asynchronously all the operations to delete the purchased ticket");
         deleteTicketAsync(clientInfo);
-        logger.info("Updating user wallet");
-        updateUserWalletSync(clientInfo.getUserId());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -80,14 +73,5 @@ public class DeleteTicketService {
             jdbcQuery.eq(OperatorEnum.AND, "ID_MOVIE", clientInfo.getIdMovie());
             jdbcConnector.update(jdbcQuery);
         }
-    }
-
-    private void retrieveTicketCost(Long ticketId) {
-        String query = StringUtils.replace(jdbcQueryMovie.getSelectPriceForMovieTicket(), "{TICKET_ID}", ticketId.toString());
-        this.cost = (Double) jdbcConnector.getNumberValue(query, Double.class);
-    }
-
-    private void updateUserWalletSync(UUID userId) {
-        userService.updateUserWallet(this.cost, userId);
     }
 }

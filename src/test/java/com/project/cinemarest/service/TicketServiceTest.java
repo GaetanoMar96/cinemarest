@@ -40,7 +40,7 @@ class TicketServiceTest {
     void postMovieTicketKo() {
         Mockito.when(jdbcConnector.nextVal("cinema.seq_cinema_ticket"))
             .thenThrow(new SqlConnectionException("Error"));
-        ClientInfo clientInfo = TestUtils.createClient(21);
+        ClientInfo clientInfo = TestUtils.createClient();
         assertThrows(SqlConnectionException.class,
                      () -> this.ticketService.postMovieTicket(clientInfo));
     }
@@ -50,7 +50,7 @@ class TicketServiceTest {
         Mockito.when(jdbcConnector.nextVal("cinema.seq_cinema_ticket"))
             .thenReturn(1L);
         Mockito.doThrow(new SqlConnectionException("Error")).when(jdbcConnector).insert(any());
-        ClientInfo clientInfo = TestUtils.createClient(21);
+        ClientInfo clientInfo = TestUtils.createClient();
         assertThrows(InvalidDataAccessResourceUsageException.class,
                      () -> this.ticketService.postMovieTicket(clientInfo));
     }
@@ -61,7 +61,7 @@ class TicketServiceTest {
             .thenReturn(1L);
         Mockito.doNothing().when(jdbcConnector).insert(any());
         Mockito.doThrow(new SqlConnectionException("Error")).when(transactionsService).insertTransaction(any());
-        ClientInfo clientInfo = TestUtils.createClient(22);
+        ClientInfo clientInfo = TestUtils.createClient();
         assertThrows(InvalidDataAccessResourceUsageException.class,
                      () -> this.ticketService.postMovieTicket(clientInfo));
     }
@@ -74,7 +74,7 @@ class TicketServiceTest {
         Mockito.doNothing().when(transactionsService).insertTransaction(any());
         Mockito.doThrow(new SqlConnectionException("Error")).when(jdbcConnector).update(any());
         Mockito.doNothing().when(jdbcConnector).delete(any());
-        ClientInfo clientInfo = TestUtils.createClient(21);
+        ClientInfo clientInfo = TestUtils.createClient();
         assertThrows(InvalidDataAccessResourceUsageException.class,
                      () -> this.ticketService.postMovieTicket(clientInfo));
     }

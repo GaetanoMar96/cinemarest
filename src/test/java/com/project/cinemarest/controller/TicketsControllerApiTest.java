@@ -44,7 +44,7 @@ public class TicketsControllerApiTest extends BaseIntegrationTest {
 
     @Test
     void postMovieTicket_expectedStatus201() throws Exception {
-        ClientInfo clientInfo = createClient(21);
+        ClientInfo clientInfo = createClient();
         mockMvc.perform(post("/api/v1/cinema/tickets/ticket")
                             .headers(new HttpHeaders())
                             .contentType(APPLICATION_JSON)
@@ -54,7 +54,7 @@ public class TicketsControllerApiTest extends BaseIntegrationTest {
 
     @Test
     void postMovieTicket_expectedStatus201_LowPrice() throws Exception {
-        ClientInfo clientInfo = createClient(16);
+        ClientInfo clientInfo = createClient();
         mockMvc.perform(post("/api/v1/cinema/tickets/ticket")
                             .headers(new HttpHeaders())
                             .contentType(APPLICATION_JSON)
@@ -64,7 +64,7 @@ public class TicketsControllerApiTest extends BaseIntegrationTest {
 
     @Test
     void postMovieTicket_missingIdMovie_expectedStatus400() throws Exception {
-        ClientInfo clientInfo = createClient(21);
+        ClientInfo clientInfo = createClient();
         clientInfo.setIdMovie(null);
         mockMvc.perform(post("/api/v1/cinema/tickets/ticket")
                             .headers(new HttpHeaders())
@@ -75,7 +75,7 @@ public class TicketsControllerApiTest extends BaseIntegrationTest {
 
     @Test
     void postMovieTicket_missingIdUser_expectedStatus400() throws Exception {
-        ClientInfo clientInfo = createClient(18);
+        ClientInfo clientInfo = createClient();
         clientInfo.setUserId(null);
         mockMvc.perform(post("/api/v1/cinema/tickets/ticket")
                             .headers(new HttpHeaders())
@@ -86,7 +86,7 @@ public class TicketsControllerApiTest extends BaseIntegrationTest {
 
     @Test
     void postMovieTicket_missingSeat_expectedStatus400() throws Exception {
-        ClientInfo clientInfo = createClient(30);
+        ClientInfo clientInfo = createClient();
         clientInfo.setSeats(null);
         mockMvc.perform(post("/api/v1/cinema/tickets/ticket")
                             .headers(new HttpHeaders())
@@ -97,7 +97,7 @@ public class TicketsControllerApiTest extends BaseIntegrationTest {
 
     @Test
     void deleteMovieTicket_expectedStatus200() throws Exception {
-        ClientInfo clientInfo = createClientToDelete(18);
+        ClientInfo clientInfo = createClientToDelete();
         clientInfo.setUserId(null);
         mockMvc.perform(delete("/api/v1/cinema/tickets/ticket/remove")
                             .headers(new HttpHeaders())

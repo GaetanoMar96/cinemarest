@@ -29,7 +29,6 @@ CREATE TABLE cinema.t_cinema_user
     lastname  character varying(50)  NOT NULL,
     email    character varying(100) NOT NULL,
     password character varying(100)  NOT NULL,
-    wallet   double precision,
     role character varying(255)  NOT NULL
 );
 

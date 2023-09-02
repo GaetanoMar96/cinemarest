@@ -9,10 +9,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ClientInfo {
+    //customer info to make transaction valid
     private UUID userId;
-    private Integer age;
-    private Boolean isStudent;
-    private double wallet;
+
+    private String cardNumber;
+
+    private String expirationDate;
+
+    private String cvc;
 
     //Movie chosen by the customer
     private String idMovie;
@@ -22,4 +26,6 @@ public class ClientInfo {
 
     //Seat chosen by the customer
     private String[] seats;
+
+    private Double totalPrice;
 }

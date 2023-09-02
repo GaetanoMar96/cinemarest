@@ -16,7 +16,4 @@ public class AuthenticationResponse {
     private String firstname;
     private String lastname;
     private String accessToken;
-
-    private Integer age;
-    private Boolean isStudent;
 }

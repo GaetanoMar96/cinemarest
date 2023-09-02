@@ -6,7 +6,6 @@ import com.project.cinemarest.service.TicketService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,10 +24,9 @@ public class TicketsControllerApi {
         return ticketService.postMovieTicket(clientInfo);
     }
 
-    @DeleteMapping(value = "/ticket/remove", produces = {"application/json"})
+    @PostMapping(value = "/ticket/remove", produces = {"application/json"})
     public ResponseEntity<Void> deleteMovieTicket(@RequestBody ClientInfo clientInfo) {
         return deleteTicketService.deleteMovieTicket(clientInfo);
     }
 
-    //TODO includere tutti i tipi di cambi di orario e di film da fare solo in seguito
 }

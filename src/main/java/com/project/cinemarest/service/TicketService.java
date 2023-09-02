@@ -5,16 +5,16 @@ import com.project.cinemarest.connector.jdbc.query.JdbcQueryMovie;
 import com.project.cinemarest.connector.jdbc.utils.JdbcQuery;
 import com.project.cinemarest.connector.jdbc.utils.JdbcQuery.OperatorEnum;
 import com.project.cinemarest.connector.jpa.repo.TicketRepository;
+import com.project.cinemarest.entity.Payment;
 import com.project.cinemarest.entity.Ticket;
 import com.project.cinemarest.exception.BadRequestException;
 import com.project.cinemarest.exception.SqlConnectionException;
-import com.project.cinemarest.factory.PriceCalculatorFactory;
 import com.project.cinemarest.mapper.TicketMapper;
 import com.project.cinemarest.mapper.TransactionMapper;
 import com.project.cinemarest.model.ClientInfo;
 import com.project.cinemarest.entity.Transaction;
 import com.project.cinemarest.connector.jdbc.QueryJdbcConnector;
-import com.project.cinemarest.factory.TicketPriceCalculator;
+import java.util.UUID;
 import javax.persistence.PersistenceException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -35,7 +35,6 @@ public class TicketService {
 
     private final TransactionsService transactionsService;
 
-    private final UserService userService;
     private final QueryJdbcConnector jdbcConnector;
     private final JdbcQueryMovie jdbcQueryMovie;
 
@@ -51,12 +50,10 @@ public class TicketService {
         clientInfo.setTicketId(ticketId);
         logger.info("Inserting ticket inside table");
         insertMovieTicket(clientInfo);
-        logger.info("Call transaction controller");
+        logger.info("Call transaction service");
         callTransactionService(clientInfo);
         logger.info("Updating cinema hall deleting the chosen seat");
         updateCinemaHall(clientInfo);
-        logger.info("Updating client wallet");
-        callUserService(clientInfo);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
@@ -66,7 +63,6 @@ public class TicketService {
         }
         try {
             Ticket ticket = ticketMapper.mapTicket(clientInfo);
-            ticket.setCost(calculateTicketPrice(clientInfo));
             ticketRepository.saveAndFlush(ticket);
         } catch (PersistenceException exception) {
             throw new SqlConnectionException("Error while inserting ticket");
@@ -74,8 +70,12 @@ public class TicketService {
     }
 
     private void callTransactionService(ClientInfo clientInfo) {
-        Transaction transaction = transactionMapper.mapTransaction(clientInfo);
+        UUID transactionId = UUID.randomUUID();
+        Transaction transaction = transactionMapper.mapTransaction(clientInfo, transactionId);
+        Payment payment = transactionMapper.mapPayment(clientInfo, transactionId);
+
         transactionsService.insertTransaction(transaction);
+        transactionsService.insertPayment(payment);
     }
 
     private void updateCinemaHall(ClientInfo clientInfo) {
@@ -96,19 +96,5 @@ public class TicketService {
             ticketRepository.deleteTicket(clientInfo.getTicketId());
             throw new SqlConnectionException("Error while updating cinema hall");
         }
-    }
-
-    private void callUserService(ClientInfo clientInfo) {
-        logger.info("updating user wallet");
-        userService.updateUserWallet(clientInfo.getWallet(), clientInfo.getUserId());
-    }
-
-    private double calculateTicketPrice(ClientInfo clientInfo) {
-        Integer age = clientInfo.getAge();
-        Boolean isStudent = clientInfo.getIsStudent();
-        TicketPriceCalculator calculator = PriceCalculatorFactory.createPriceCalculator(age, isStudent);
-        double price = calculator.calculateTicketPrice(age);
-        clientInfo.setWallet(clientInfo.getWallet() - price);
-        return price;
     }
 }
