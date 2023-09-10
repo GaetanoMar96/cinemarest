@@ -25,10 +25,13 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.MountableFile;
 
+import org.testcontainers.utility.DockerImageName;
+import org.testcontainers.utility.TestcontainersConfiguration;
+
 @SpringBootTest
 @ContextConfiguration(classes = {CoreTestSpringConfiguration.class})
 @AutoConfigureMockMvc
-@ActiveProfiles("unittest")
+@ActiveProfiles("test")
 @Testcontainers
 @WithMockUser(roles = "USER")
 public class MoviesControllerApiTest {
@@ -36,8 +39,8 @@ public class MoviesControllerApiTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Container
-    public static MongoDBContainer container = new MongoDBContainer("mongo:latest")
+    //@Container
+    public static MongoDBContainer container= new MongoDBContainer("mongo:7.0.1")
         .withExposedPorts(27017)
         .withCopyFileToContainer(MountableFile.forClasspathResource("./scripts/init-schema.js"), "/docker-entrypoint-initdb.d/init-script.js");
 

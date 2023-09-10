@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Seat {
 
+    private String hallName;
     private Double baseCost;
     private String[] availableSeats;
 

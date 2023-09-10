@@ -15,6 +15,6 @@ public interface TicketMapper {
 
     @Mapping(target = "ticketId", source = "clientInfo.ticketId")
     @Mapping(target = "idMovie", source = "clientInfo.idMovie")
-    @Mapping(target = "cost", ignore = true)
+    @Mapping(target = "cost", source = "clientInfo.totalPrice")
     Ticket mapTicket(ClientInfo clientInfo);
 }

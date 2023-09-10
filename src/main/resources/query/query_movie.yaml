@@ -1,6 +1,8 @@
 t_cinema_movie:
   selectAvailableSeatsForMovie:
-    "SELECT BASE_COST,
+    "SELECT 
+      HALL_NAME,
+      BASE_COST,
       AVAILABLE_SEATS
     FROM cinema.T_CINEMA_HALL H
     INNER JOIN cinema.T_CINEMA_MOVIE M

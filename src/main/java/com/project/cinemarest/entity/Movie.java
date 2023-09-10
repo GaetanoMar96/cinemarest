@@ -1,10 +1,12 @@
 package com.project.cinemarest.entity;
 
 import javax.persistence.Id;
+import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
+@Builder
 @Document(collection = "movies")
 public class Movie {
 

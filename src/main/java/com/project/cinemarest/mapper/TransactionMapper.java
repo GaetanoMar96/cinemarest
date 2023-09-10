@@ -4,7 +4,6 @@ import com.project.cinemarest.entity.Payment;
 import com.project.cinemarest.model.ClientInfo;
 import com.project.cinemarest.entity.Transaction;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.UUID;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -23,6 +22,7 @@ public interface TransactionMapper {
     @Mapping(target = "userId", source = "clientInfo.userId")
     Transaction mapTransaction(ClientInfo clientInfo, UUID transactionId);
 
+    @Mapping(target = "id", ignore = true)
     @Mapping(target = "userId", source = "clientInfo.userId")
     @Mapping(target = "ticketId", source = "clientInfo.ticketId")
     @Mapping(target = "transactionId", source = "transactionId")
