@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/cinema")
+@RequestMapping("/api/v1/cinema/theater")
 @RequiredArgsConstructor
 public class CinemaControllerApi {
 

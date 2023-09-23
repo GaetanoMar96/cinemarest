@@ -1,5 +1,6 @@
 package com.project.cinemarest.entity;
 
+import java.math.BigInteger;
 import java.util.UUID;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -20,7 +21,7 @@ public class Transaction {
 
     private Long ticketId;
 
-    private String idMovie;
+    private BigInteger idMovie;
 
     private UUID userId;
 }

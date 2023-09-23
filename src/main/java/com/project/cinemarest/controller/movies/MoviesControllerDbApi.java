@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/cinema/movies/v3")
+@RequestMapping("/api/v1/cinema/movies/db")
 @RequiredArgsConstructor
-public class MoviesControllerV3Api {
+public class MoviesControllerDbApi {
 
     private final MovieDbApiService movieDbApiService;
 
@@ -24,7 +24,12 @@ public class MoviesControllerV3Api {
     }
 
     @GetMapping(value = "/movie/{movie_id}", produces = {"application/json"})
-    public ResponseEntity<MovieDetail> getNowPlayingMovies(@PathVariable("movie_id") String movieId) {
+    public ResponseEntity<MovieDetail> getMovieDetail(@PathVariable("movie_id") String movieId) {
         return ResponseEntity.ok(movieDbApiService.getMovieDetail(movieId));
+    }
+
+    @GetMapping(value = "/upcoming", produces = {"application/json"})
+    public ResponseEntity<List<Movie>> getUpcomingMovies() {
+        return ResponseEntity.ok(movieDbApiService.getUpcomingMovies());
     }
 }

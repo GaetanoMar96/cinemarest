@@ -10,11 +10,7 @@ import lombok.Data;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MovieDetail {
 
-    @JsonProperty("adult")
     private boolean adult;
-
-    @JsonProperty("backdrop_path")
-    private String backdropPath;
 
     private int budget;
 
@@ -57,6 +53,9 @@ public class MovieDetail {
 
     @JsonProperty("vote_count")
     private int voteCount;
+
+    @JsonProperty("poster_path")
+    private String posterPath;
 
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)

@@ -9,23 +9,17 @@ import lombok.Data;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MovieResponse {
 
-    @JsonProperty("results")
     private List<Movie> results;
 
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Movie {
 
-        @JsonProperty("id")
         private int id;
 
         @JsonProperty("original_language")
         private String originalLanguage;
 
-        @JsonProperty("original_title")
-        private String originalTitle;
-
-        @JsonProperty("overview")
         private String overview;
 
         @JsonProperty("poster_path")
@@ -34,7 +28,6 @@ public class MovieResponse {
         @JsonProperty("release_date")
         private String releaseDate;
 
-        @JsonProperty("title")
         private String title;
     }
 }

@@ -2,6 +2,7 @@ package com.project.cinemarest.exception;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 import com.project.cinemarest.exception.error.ApiError;
 import javax.persistence.PersistenceException;
@@ -96,6 +97,20 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(PersistenceException.class)
     public ResponseEntity<Object> handleSqlConnection(PersistenceException ex) {
         ApiError apiError = new ApiError(INTERNAL_SERVER_ERROR);
+        apiError.setMessage(ex.getMessage());
+        apiError.setDebugMessage(getDebugMessageIfExists(ex));
+        return buildResponseEntity(apiError);
+    }
+
+    /**
+     * Handles DataNotFoundException. Created to encapsulate data not found errors.
+     *
+     * @param ex the DataNotFoundException
+     * @return the ApiError object
+     */
+    @ExceptionHandler(DataNotFoundException.class)
+    public ResponseEntity<Object> handleDataNotFound(DataNotFoundException ex) {
+        ApiError apiError = new ApiError(NOT_FOUND);
         apiError.setMessage(ex.getMessage());
         apiError.setDebugMessage(getDebugMessageIfExists(ex));
         return buildResponseEntity(apiError);

@@ -12,15 +12,25 @@ import org.springframework.util.MultiValueMap;
 @Component
 public class GetMoviesConnector extends AbstractRestConnector<Void, MovieResponse> {
 
-    private static final String ENDPOINT = "https://api.themoviedb.org/3/movie/now_playing";
+    private static final String ENDPOINT = "https://api.themoviedb.org/3/movie/";
 
     private static final HttpMethod httpMethod = HttpMethod.GET;
 
     public List<Movie> getMovies() {
+        final String url = "now_playing";
+        return getResponse(ENDPOINT + url, httpMethod, getQueryParams(), MovieResponse.class).getResults();
+    }
+
+    public List<Movie> getUpcomingMovies() {
+        final String url = "upcoming";
+        return getResponse(ENDPOINT + url, httpMethod, getQueryParams(), MovieResponse.class).getResults();
+    }
+
+    private MultiValueMap<String, String> getQueryParams() {
         MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<>();
         queryParams.add("language", "en-US");
         queryParams.add("page", "1");
         queryParams.add("region", "IT");
-        return getResponse(ENDPOINT, httpMethod, queryParams, MovieResponse.class).getResults();
+        return queryParams;
     }
 }

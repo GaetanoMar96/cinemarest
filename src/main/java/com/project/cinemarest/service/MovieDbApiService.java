@@ -17,16 +17,26 @@ public class MovieDbApiService {
     private final GetMoviesConnector getMoviesConnector;
 
     private final GetMovieDetailConnector getMovieDetailConnector;
+
     public List<Movie> getNowPlayingMovies() {
         List<Movie> movies = getMoviesConnector.getMovies();
-        //getting only the first 6 movies
-        if (CollectionUtils.size(movies) >= 6) {
-            return movies.stream().limit(6).collect(Collectors.toList());
+        //getting only the first 4 movies
+        if (CollectionUtils.size(movies) >= 4) {
+            return movies.stream().limit(4).collect(Collectors.toList());
         }
         return movies;
     }
 
     public MovieDetail getMovieDetail(String movieId) {
         return getMovieDetailConnector.getMovie(movieId);
+    }
+
+    public List<Movie> getUpcomingMovies() {
+        List<Movie> movies = getMoviesConnector.getUpcomingMovies();
+        //getting only the first 4 movies
+        if (CollectionUtils.size(movies) >= 4) {
+            return movies.stream().limit(4).collect(Collectors.toList());
+        }
+        return movies;
     }
 }

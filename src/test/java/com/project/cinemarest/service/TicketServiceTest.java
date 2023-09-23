@@ -24,7 +24,7 @@ import org.springframework.test.context.ContextConfiguration;
 @SpringBootTest
 @ContextConfiguration(classes = {CoreTestSpringConfiguration.class})
 @RunWith(MockitoJUnitRunner.class)
-@ActiveProfiles("unittest")
+@ActiveProfiles("test")
 class TicketServiceTest {
 
     @Autowired

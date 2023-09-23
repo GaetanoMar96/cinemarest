@@ -1,95 +1,86 @@
 package com.project.cinemarest.controller;
 
+import static com.project.cinemarest.utils.TestUtils.getMovieDetail;
+import static com.project.cinemarest.utils.TestUtils.getMovies;
+import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.project.cinemarest.CoreTestSpringConfiguration;
-import org.hamcrest.Matchers;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import com.project.cinemarest.connector.rest.movies.GetMovieDetailConnector;
+import com.project.cinemarest.connector.rest.movies.GetMoviesConnector;
+import com.project.cinemarest.exception.DataNotFoundException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpHeaders;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.containers.MongoDBContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.MountableFile;
-
-import org.testcontainers.utility.DockerImageName;
-import org.testcontainers.utility.TestcontainersConfiguration;
 
 @SpringBootTest
 @ContextConfiguration(classes = {CoreTestSpringConfiguration.class})
-@AutoConfigureMockMvc
+@RunWith(MockitoJUnitRunner.class)
 @ActiveProfiles("test")
-@Testcontainers
-@WithMockUser(roles = "USER")
-public class MoviesControllerApiTest {
+@AutoConfigureMockMvc
+class MoviesControllerApiTest {
 
     @Autowired
     private MockMvc mockMvc;
 
-    //@Container
-    public static MongoDBContainer container= new MongoDBContainer("mongo:7.0.1")
-        .withExposedPorts(27017)
-        .withCopyFileToContainer(MountableFile.forClasspathResource("./scripts/init-schema.js"), "/docker-entrypoint-initdb.d/init-script.js");
+    @SpyBean
+    private GetMoviesConnector getMoviesConnector;
 
-    @BeforeAll
-    public static void setup() {
-        container.withReuse(true);
-        container.start();
-    }
+    @SpyBean
+    private GetMovieDetailConnector getMovieDetailConnector;
 
-    @DynamicPropertySource
-    public static void overrideProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.data.mongodb.host", container::getHost);
-        registry.add("spring.data.mongodb.port", container::getFirstMappedPort);
-        registry.add("spring.data.mongodb.username", () -> "test_container");
-        registry.add("spring.data.mongodb.password", () -> "test_container");
-        registry.add("spring.data.mongodb.database", () -> "cinema");
+    @BeforeEach
+    void setUp() {
+        when(getMoviesConnector.getMovies()).thenReturn(getMovies());
+        when(getMoviesConnector.getUpcomingMovies()).thenReturn(getMovies());
+        when(getMovieDetailConnector.getMovie("872585")).thenReturn(getMovieDetail());
     }
 
     @Test
     void getAllMovies_expectedStatus200() throws Exception {
-        mockMvc.perform(get("/api/v1/cinema/movies")
+        mockMvc.perform(get("/api/v1/cinema/movies/db/now_playing")
                             .headers(new HttpHeaders())
                             .contentType(APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.movies").value(Matchers.hasSize(6)));
+            .andExpect(status().isOk());
     }
 
     @Test
-    void getMovieInfo_expectedStatus200() throws Exception {
-        mockMvc.perform(get("/api/v1/cinema/movies/{movie}/info", "Interstellar")
+    void getMovieDetail_expectedStatus200() throws Exception {
+        mockMvc.perform(get("/api/v1/cinema/movies/db/movie/{movie_id}", "872585")
                             .headers(new HttpHeaders())
                             .contentType(APPLICATION_JSON))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.movies.[0].title").value("Interstellar"))
-            .andExpect(jsonPath("$.movies.[0].year").value("2014"))
-            .andExpect(jsonPath("$.movies.[0].rated").value("PG-13"))
-            .andExpect(jsonPath("$.movies.[0].released").value("07 Nov 2014"));
+            .andExpect(jsonPath("$.title").value("movie1"))
+            .andExpect(jsonPath("$.id").value(872585));
     }
 
     @Test
-    void getMovieInfos_expectedStatus404() throws Exception {
-        mockMvc.perform(get("/api/v1/cinema/movies/{movie}/info", "Magnolia")
+    void getMovieDetail_expectedStatus404() throws Exception {
+        when(getMovieDetailConnector.getMovie("872586")).thenThrow(DataNotFoundException.class);
+
+        mockMvc.perform(get("/api/v1/cinema/movies/db/movie/{movie_id}", "872586")
                             .headers(new HttpHeaders())
                             .contentType(APPLICATION_JSON))
             .andExpect(status().isNotFound());
     }
 
-    @AfterAll
-    public static void tearDown() {
-        container.stop();
+    @Test
+    void getUpcomingMovies_expectedStatus200() throws Exception {
+        mockMvc.perform(get("/api/v1/cinema/movies/db/upcoming")
+                            .headers(new HttpHeaders())
+                            .contentType(APPLICATION_JSON))
+            .andExpect(status().isOk());
     }
 }
