@@ -1,5 +1,6 @@
 package com.project.cinemarest.service;
 
+import com.project.cinemarest.cache.MoviesCache;
 import com.project.cinemarest.connector.rest.movies.GetMovieDetailConnector;
 import com.project.cinemarest.connector.rest.movies.GetMoviesConnector;
 import com.project.cinemarest.model.MovieDetail;
@@ -18,12 +19,19 @@ public class MovieDbApiService {
 
     private final GetMovieDetailConnector getMovieDetailConnector;
 
+    private final MoviesCache moviesCache = MoviesCache.getInstance();
+
     public List<Movie> getNowPlayingMovies() {
-        List<Movie> movies = getMoviesConnector.getMovies();
-        //getting only the first 4 movies
-        if (CollectionUtils.size(movies) >= 4) {
-            return movies.stream().limit(4).collect(Collectors.toList());
+        List<Movie> movies = moviesCache.getFromCache("NOW");
+        if (CollectionUtils.isNotEmpty(movies)) {
+            return movies;
         }
+
+        movies = getMoviesConnector.getMovies();
+
+        //getting only the first 4 movies
+        movies = movies.stream().limit(4).collect(Collectors.toList());
+        moviesCache.addToCache("NOW", movies);
         return movies;
     }
 
@@ -32,11 +40,16 @@ public class MovieDbApiService {
     }
 
     public List<Movie> getUpcomingMovies() {
-        List<Movie> movies = getMoviesConnector.getUpcomingMovies();
-        //getting only the first 4 movies
-        if (CollectionUtils.size(movies) >= 4) {
-            return movies.stream().limit(4).collect(Collectors.toList());
+        List<Movie> movies = moviesCache.getFromCache("UPCOMING");
+        if (CollectionUtils.isNotEmpty(movies)) {
+            return movies;
         }
+
+        movies = getMoviesConnector.getUpcomingMovies();
+
+        //getting only the first 4 movies
+        movies = movies.stream().limit(4).collect(Collectors.toList());
+        moviesCache.addToCache("UPCOMING", movies);
         return movies;
     }
 }

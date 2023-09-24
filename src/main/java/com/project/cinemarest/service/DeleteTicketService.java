@@ -22,40 +22,30 @@ import org.springframework.util.StringUtils;
 public class DeleteTicketService {
 
     private static final Logger logger = LoggerFactory.getLogger(DeleteTicketService.class);
-
     private final TransactionsService transactionsService;
-
-    private final UserService userService;
-
     private final QueryJdbcConnector jdbcConnector;
     private final JdbcQueryMovie jdbcQueryMovie;
-
     private final TicketRepository ticketRepository;
 
     public ResponseEntity<Void> deleteMovieTicket(ClientInfo clientInfo) {
-        logger.info("calling asynchronously all the operations to delete the purchased ticket");
-        deleteTicketAsync(clientInfo);
+        updateSeatsAsync(clientInfo);
+        deleteTicketsSync(clientInfo);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     /**
-     * Method to execute asynchronously all the deleting and updating operations
+     * Method to execute asynchronously all the updating operations
      * after the user requested a ticket cancellation
      * @param clientInfo client info
      */
-    private void deleteTicketAsync(ClientInfo clientInfo) {
-        Long ticketId = clientInfo.getTicketId();
-
+    private void updateSeatsAsync(ClientInfo clientInfo) {
         logger.info("Updating cinema hall adding the chosen seat");
         CompletableFuture<Void> updateCinemaHallFuture = CompletableFuture.runAsync(() -> updateCinemaHallAddingSeat(clientInfo));
-        logger.info("Call transaction controller to delete transaction");
-        CompletableFuture<Void> deleteTransactionFuture = CompletableFuture.runAsync(() -> transactionsService.deleteTransaction(ticketId));
-        logger.info("Deleting the ticket");
-        CompletableFuture<Void> deleteMovieTicketFuture = CompletableFuture.runAsync(() -> ticketRepository.deleteTicket(ticketId));
 
-        CompletableFuture.allOf(updateCinemaHallFuture, deleteTransactionFuture, deleteMovieTicketFuture)
+        CompletableFuture.allOf(updateCinemaHallFuture)
             .thenRun(() -> logger.info("Deletion completed"))
             .exceptionally(e -> {
+                e.printStackTrace();
                 logger.info("Deletion not completed");
                 return null;
             });
@@ -73,5 +63,13 @@ public class DeleteTicketService {
             jdbcQuery.eq(OperatorEnum.AND, "ID_MOVIE", clientInfo.getIdMovie());
             jdbcConnector.update(jdbcQuery);
         }
+    }
+
+    private void deleteTicketsSync(ClientInfo clientInfo) {
+        Long ticketId = clientInfo.getTicketId();
+        logger.info("Call transaction service to delete transaction");
+        transactionsService.deleteTransaction(ticketId);
+        logger.info("Deleting the ticket");
+        ticketRepository.deleteTicketByTicketId(ticketId);
     }
 }

@@ -1,8 +1,10 @@
 package com.project.cinemarest.service;
 
 import com.project.cinemarest.entity.User;
+import com.project.cinemarest.exception.BadRequestException;
 import com.project.cinemarest.model.AuthenticationRequest;
 import com.project.cinemarest.model.AuthenticationResponse;
+import com.project.cinemarest.model.PasswordRequest;
 import com.project.cinemarest.model.RegisterRequest;
 import com.project.cinemarest.security.JwtService;
 import java.util.UUID;
@@ -29,7 +31,6 @@ public class AuthenticationService {
             .lastname(request.getLastname())
             .email(request.getEmail())
             .password(passwordEncoder.encode(request.getPassword()))
-            //.wallet(0) //at registration the wallet is empty
             .role(request.getRole())
             .build();
         String jwtToken = jwtService.generateToken(user);
@@ -53,5 +54,14 @@ public class AuthenticationService {
             .userId(user.getUserId())
             .accessToken(jwtToken)
             .build();
+    }
+
+    public void changePassword(PasswordRequest request) {
+        User user = userService.findByUserId(request.getUserId());
+        if (passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
+            userService.updateUserPassword(request.getUserId(), passwordEncoder.encode(request.getNewPassword()));
+        } else {
+            throw new BadRequestException("Incorrect password");
+        }
     }
 }

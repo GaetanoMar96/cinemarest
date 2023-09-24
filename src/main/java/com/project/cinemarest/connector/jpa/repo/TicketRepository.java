@@ -4,13 +4,13 @@ package com.project.cinemarest.connector.jpa.repo;
 import com.project.cinemarest.entity.Ticket;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
     @Modifying
-    @Query("delete from Ticket t where t.ticketId = :ticketId")
-    int deleteTicket(Long ticketId);
+    @Transactional
+    int deleteTicketByTicketId(Long ticketId);
 }

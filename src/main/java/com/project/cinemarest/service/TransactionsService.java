@@ -8,6 +8,7 @@ import com.project.cinemarest.entity.Transaction;
 import javax.persistence.PersistenceException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -21,7 +22,6 @@ public class TransactionsService {
         try {
             transactionRepository.saveAndFlush(transaction);
         } catch (PersistenceException exception) {
-            deleteTransaction(transaction.getTicketId());
             throw new SqlConnectionException("Error while inserting transaction");
         }
     }
@@ -30,8 +30,9 @@ public class TransactionsService {
         paymentRepository.insert(payment);
     }
 
+    @Transactional
     public void deleteTransaction(Long ticketId) {
-        transactionRepository.deleteTransaction(ticketId);
+        transactionRepository.deleteTransactionByTicketId(ticketId);
         paymentRepository.deleteByTicketId(ticketId);
     }
 

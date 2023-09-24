@@ -93,7 +93,7 @@ public class TicketService {
         } catch (SqlConnectionException exception) {
             logger.error("Deleting both transaction and ticket");
             transactionsService.deleteTransaction(clientInfo.getTicketId());
-            ticketRepository.deleteTicket(clientInfo.getTicketId());
+            ticketRepository.deleteTicketByTicketId(clientInfo.getTicketId());
             throw new SqlConnectionException("Error while updating cinema hall");
         }
     }

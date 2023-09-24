@@ -35,9 +35,10 @@ public abstract class AbstractRestConnector<I, O>{
 
     private HttpEntity<?> setHeaders() {
         // Create headers with authorization
+        String token = System.getenv("TOKEN");
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept", "application/json");
-        headers.set("Authorization", "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5YjEyZjc5NmFlYWQ3NGU0NWYyYjQyYzBiODk4N2MxNCIsInN1YiI6IjY1MDZmM2QwMTA5ZGVjMDE0ZjQxNDMwYyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.R6U8WsBN8Sk2YGyj5qN8eNFd0PCmCaQteGz5t7-ehc0");
+        headers.set("Authorization", "Bearer ".concat(token));
 
         // Create an HTTP entity with headers
         return new HttpEntity<>(headers);
