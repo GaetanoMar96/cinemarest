@@ -1,4 +1,4 @@
-package com.project.cinemarest.connector.jpa.repo;
+package com.project.cinemarest.connector.jpa;
 
 import com.project.cinemarest.entity.Transaction;
 import java.util.UUID;
@@ -10,5 +10,5 @@ import org.springframework.stereotype.Repository;
 public interface TransactionRepository extends JpaRepository<Transaction, UUID> {
 
     @Modifying
-    int deleteTransactionByTicketId(Long ticketId);
+    void deleteTransactionByTicketId(Long ticketId);
 }

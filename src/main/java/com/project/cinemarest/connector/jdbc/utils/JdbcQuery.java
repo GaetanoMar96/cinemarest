@@ -1,12 +1,15 @@
 package com.project.cinemarest.connector.jdbc.utils;
 
+import lombok.Getter;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@Getter
 public class JdbcQuery {
 
-    private final StringBuilder queryBuilder;
+    private final StringBuffer queryBuilder;
 
     private final List<Object> parameters = new ArrayList<>();
 
@@ -18,10 +21,6 @@ public class JdbcQuery {
         return parameters.toArray();
     }
 
-    public List<Object> getParameters() {
-        return this.parameters;
-    }
-
     public void setParameters(List<Object> params) {
         this.parameters.addAll(params);
     }
@@ -31,7 +30,7 @@ public class JdbcQuery {
     }
 
     public JdbcQuery(String query) {
-        queryBuilder = new StringBuilder(query);
+        queryBuilder = new StringBuffer(query);
     }
 
     /**

@@ -1,4 +1,4 @@
-package com.project.cinemarest.connector.jpa.repo;
+package com.project.cinemarest.connector.jpa;
 
 
 import com.project.cinemarest.entity.Ticket;
@@ -12,5 +12,5 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
     @Modifying
     @Transactional
-    int deleteTicketByTicketId(Long ticketId);
+    void deleteTicketByTicketId(Long ticketId);
 }

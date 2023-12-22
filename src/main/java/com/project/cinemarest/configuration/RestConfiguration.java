@@ -7,8 +7,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Configuration
 public class RestConfiguration {
 
-    @Bean
+    /*@Bean
     public WebClient localApiClient() {
         return WebClient.create("http://localhost:8091/api/v1/cinema");
-    }
+    }*/
 }

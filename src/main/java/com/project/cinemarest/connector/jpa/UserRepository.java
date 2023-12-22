@@ -1,4 +1,4 @@
-package com.project.cinemarest.connector.jpa.repo;
+package com.project.cinemarest.connector.jpa;
 
 import com.project.cinemarest.entity.User;
 import java.util.Optional;
@@ -17,5 +17,5 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     @Modifying
     @Query("update User u set u.password = :password where u.userId = :userId")
-    int updateUserPassword(UUID userId, String password);
+    void updateUserPassword(UUID userId, String password);
 }

@@ -1,6 +1,6 @@
 package com.project.cinemarest.service;
 
-import com.project.cinemarest.connector.jpa.repo.UserRepository;
+import com.project.cinemarest.connector.jpa.UserRepository;
 import com.project.cinemarest.entity.User;
 
 import java.util.UUID;

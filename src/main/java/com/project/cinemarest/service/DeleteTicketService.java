@@ -4,7 +4,7 @@ package com.project.cinemarest.service;
 import com.project.cinemarest.connector.jdbc.query.JdbcQueryMovie;
 import com.project.cinemarest.connector.jdbc.utils.JdbcQuery;
 import com.project.cinemarest.connector.jdbc.utils.JdbcQuery.OperatorEnum;
-import com.project.cinemarest.connector.jpa.repo.TicketRepository;
+import com.project.cinemarest.connector.jpa.TicketRepository;
 import com.project.cinemarest.exception.BadRequestException;
 import com.project.cinemarest.model.ClientInfo;
 import com.project.cinemarest.connector.jdbc.QueryJdbcConnector;

@@ -4,8 +4,7 @@ package com.project.cinemarest.service;
 import com.project.cinemarest.connector.jdbc.query.JdbcQueryMovie;
 import com.project.cinemarest.connector.jdbc.utils.JdbcQuery;
 import com.project.cinemarest.connector.jdbc.utils.JdbcQuery.OperatorEnum;
-import com.project.cinemarest.connector.jpa.repo.TicketRepository;
-import com.project.cinemarest.entity.Payment;
+import com.project.cinemarest.connector.jpa.TicketRepository;
 import com.project.cinemarest.entity.Ticket;
 import com.project.cinemarest.exception.BadRequestException;
 import com.project.cinemarest.exception.SqlConnectionException;
@@ -72,10 +71,7 @@ public class TicketService {
     private void callTransactionService(ClientInfo clientInfo) {
         UUID transactionId = UUID.randomUUID();
         Transaction transaction = transactionMapper.mapTransaction(clientInfo, transactionId);
-        Payment payment = transactionMapper.mapPayment(clientInfo, transactionId);
-
         transactionsService.insertTransaction(transaction);
-        transactionsService.insertPayment(payment);
     }
 
     private void updateCinemaHall(ClientInfo clientInfo) {
