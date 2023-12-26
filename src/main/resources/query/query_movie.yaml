@@ -1,0 +1,52 @@
+t_cinema_movie:
+  selectAvailableSeatsForMovie:
+    "SELECT 
+      HALL_NAME,
+      BASE_COST,
+      AVAILABLE_SEATS
+    FROM cinema.T_CINEMA_HALL H
+    INNER JOIN cinema.T_CINEMA_MOVIE M
+      ON H.ID_MOVIE = M.ID_MOVIE
+    INNER JOIN cinema.T_CINEMA_MOVIE_SHOW S
+      ON M.ID_MOVIE = S.ID_MOVIE  
+    WHERE 1=1"
+
+t_cinema_ticket:
+  insertMovieTicket:
+    "INSERT INTO cinema.T_CINEMA_TICKET(TICKET_ID, ID_MOVIE, COST)
+     	VALUES (?, ?, ?);"
+  deleteMovieTicket:
+    "DELETE FROM cinema.T_CINEMA_TICKET WHERE TICKET_ID = {TICKET_ID};"
+  selectPriceForMovieTicket:
+    "SELECT COST FROM cinema.T_CINEMA_TICKET WHERE TICKET_ID = {TICKET_ID};"
+
+t_cinema_hall:
+  updateCinemaHall:
+    "update cinema.t_cinema_hall set available_seats = ARRAY_REMOVE(available_seats, '{SEAT}') WHERE 1 = 1"
+  updateCinemaHallAddingSeat:
+    "update cinema.t_cinema_hall set available_seats = ARRAY_APPEND(available_seats, '{SEAT}') WHERE 1 = 1"
+
+t_cinema_transaction:
+  insertTransaction:
+    "INSERT INTO cinema.T_CINEMA_TRANSACTION(TRANSACTION_ID, 
+    TICKET_ID, ID_MOVIE, USER_ID)
+          	VALUES (?, ?, ?, ?);"
+
+  deleteTransaction:
+    "DELETE FROM cinema.T_CINEMA_TRANSACTION WHERE TICKET_ID = {TICKET_ID};"
+
+t_cinema_user:
+  insertUser:
+    "INSERT INTO t_cinema_user
+             (email, firstname, lastname, password, wallet, user_id) 
+         values
+             (?, ?, ?, ?, ?, ?)"
+
+t_cinema_movie_show:
+  selectAllShowsByMovie:
+    "SELECT START_DATE,
+         START_TIME
+    FROM cinema.T_CINEMA_MOVIE_SHOW S
+    INNER JOIN cinema.T_CINEMA_MOVIE M
+      ON S.ID_MOVIE = M.ID_MOVIE
+    WHERE 1=1"
