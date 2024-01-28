@@ -13,6 +13,7 @@ import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
@@ -111,6 +112,20 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(DataNotFoundException.class)
     public ResponseEntity<Object> handleDataNotFound(DataNotFoundException ex) {
         ApiError apiError = new ApiError(NOT_FOUND);
+        apiError.setMessage(ex.getMessage());
+        apiError.setDebugMessage(getDebugMessageIfExists(ex));
+        return buildResponseEntity(apiError);
+    }
+
+    /**
+     * Handles RestClientException. Created to encapsulate errors while performing rest calls.
+     *
+     * @param ex the RestClientException
+     * @return the ApiError object
+     */
+    @ExceptionHandler(RestClientException.class)
+    public ResponseEntity<Object> handleRestClientException(RestClientException ex) {
+        ApiError apiError = new ApiError(INTERNAL_SERVER_ERROR);
         apiError.setMessage(ex.getMessage());
         apiError.setDebugMessage(getDebugMessageIfExists(ex));
         return buildResponseEntity(apiError);

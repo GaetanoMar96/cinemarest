@@ -14,6 +14,7 @@ public class TestUtils {
         clientInfo.setUserId(UUID.fromString("41e822f6-d648-4a1c-acc3-44c8336b4665"));
         clientInfo.setIdMovie(872585);
         clientInfo.setSeats(new String[]{"A1"});
+        clientInfo.setTotalPrice(10.00);
         return clientInfo;
     }
 
@@ -23,6 +24,7 @@ public class TestUtils {
         clientInfo.setIdMovie(872585);
         clientInfo.setTicketId(99L);
         clientInfo.setSeats(new String[]{"C1"});
+        clientInfo.setTotalPrice(10.00);
         return clientInfo;
     }
 

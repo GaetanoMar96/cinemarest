@@ -3,13 +3,14 @@ package com.project.cinemarest.controller.movies;
 import com.project.cinemarest.model.MovieDetail;
 import com.project.cinemarest.model.MovieResponse.Movie;
 import com.project.cinemarest.service.MovieDbApiService;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/cinema/movies/db")
